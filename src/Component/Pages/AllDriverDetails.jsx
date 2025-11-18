@@ -389,7 +389,7 @@ const DocumentCard = ({ url, title }) => {
         src={url}
         alt={title}
         className="w-20 h-20 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform"
-        onError={(e) => {
+      onError={(e) => {
           e.target.src = '/default-document.png';
         }}
       />

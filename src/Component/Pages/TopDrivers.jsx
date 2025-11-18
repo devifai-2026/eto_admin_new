@@ -8,6 +8,7 @@ import { TbCarSuvFilled } from 'react-icons/tb';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { topDriverAPI } from '../../apis/TopDriver';
 import { Helmet } from 'react-helmet';
+import toto from "../../assets/sidebar/toto.jpg"
 
 const TopDrivers = () => {
   const [drivers, setDrivers] = useState([]);
@@ -133,7 +134,7 @@ const TopDrivers = () => {
                   {drivers.reduce((total, driver) => total + driver.rideCount, 0)}
                 </p>
               </div>
-              <div className="text-2xl sm:text-3xl"><TbCarSuvFilled /></div>
+              <div className="text-2xl sm:text-3xl"><img className='w-8 h-8 md:w-12 md:h-12 rounded-full' src={toto} alt="" /></div>
             </div>
           </div>
           

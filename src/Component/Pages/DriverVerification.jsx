@@ -16,6 +16,7 @@ import {
   FiFilter
 } from 'react-icons/fi';
 import { Helmet } from 'react-helmet';
+import toto from "../../assets/sidebar/toto.jpg"
 
 const DriverVerification = () => {
   const [selectedUserData, setSelectedUserData] = useState(null);
@@ -333,7 +334,7 @@ const DriverVerification = () => {
                           </div>
                           {user.vehicle_number && (
                             <div className="flex items-center space-x-1">
-                              <FiTruck size={14} />
+                              <img className='h-8 w-8 rounded-full' src={toto} alt="" />
                               <span className="font-mono">{user.vehicle_number}</span>
                             </div>
                           )}
@@ -413,7 +414,7 @@ const DriverVerification = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4">🚗</div>
+                <div className="text-6xl mb-4"><img className='w-10 h-10 md:w-14 md:h-14 rounded-full mx-auto' src={toto} alt="" /></div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   No {activeTab === "new" ? "pending" : "rejected"} drivers found
                 </h3>
@@ -568,7 +569,7 @@ const DriverVerification = () => {
                 <div className="space-y-4">
                   {selectedUserData.vehicle_number && (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <FiTruck className="text-gray-600 dark:text-gray-400 flex-shrink-0" size={18} />
+                     <img className='h-8 w-8 rounded-full' src={toto} alt="" />
                       <div>
                         <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                           Vehicle Number
