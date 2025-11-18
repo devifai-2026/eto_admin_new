@@ -13,7 +13,7 @@ import {
   FiMapPin,
   FiPhone,
   FiUser,
-  FiTruck,
+
   FiEye,
   FiMap,
   FiX,
@@ -22,6 +22,7 @@ import {
   FiChevronRight
 } from "react-icons/fi";
 import { Helmet } from "react-helmet";
+import toto from "../../assets/sidebar/toto.jpg"
 
 const ActiveRides = () => {
   const navigate = useNavigate();
@@ -193,7 +194,7 @@ const ActiveRides = () => {
                 <p className="text-blue-100 text-xs sm:text-sm">Total Active Rides</p>
                 <p className="text-xl sm:text-2xl font-bold mt-1">{rides.length}</p>
               </div>
-              <FiTruck className="text-2xl sm:text-3xl text-blue-200" />
+             <img className="h-8 w-8 rounded-full" src={toto} alt="" />
             </div>
           </div>
 

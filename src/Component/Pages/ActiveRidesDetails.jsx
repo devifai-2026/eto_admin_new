@@ -13,7 +13,7 @@ import {
   FiUser,
   FiPhone,
   FiMapPin,
-  FiTruck,
+
   FiClock,
   FiChevronLeft,
   FiMap,
@@ -21,6 +21,7 @@ import {
   FiFlag
 } from 'react-icons/fi';
 import { Helmet } from 'react-helmet';
+import toto from "../../assets/sidebar/toto.jpg"
 
 const BACKEND_URI = import.meta.env.VITE_BACKEND_URI;
 
@@ -191,7 +192,7 @@ const ActiveRidesDetails = () => {
             <p className="text-green-100 text-2xl md:text-3xl lg:text-4xl">Currently Active</p>
           </div>
           <div className="bg-white bg-opacity-20 rounded-full p-4">
-            <FiTruck size={40} />
+          <img className='h-8 w-8 rounded-full' src={toto} alt="" />
           </div>
         </div>
       </div>
@@ -202,7 +203,7 @@ const ActiveRidesDetails = () => {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-              <FiTruck className="text-blue-600 dark:text-blue-400" size={24} />
+             <img className='w-8 h-8 rounded-full' src={toto} alt="" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               Driver Information

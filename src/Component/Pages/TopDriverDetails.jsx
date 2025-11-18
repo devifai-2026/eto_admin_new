@@ -8,6 +8,7 @@ import { FaAddressCard, FaCarSide } from 'react-icons/fa6';
 import { IoIosDocument } from 'react-icons/io';
 import { topDriverAPI } from '../../apis/TopDriver';
 import { Helmet } from 'react-helmet';
+import toto from "../../assets/sidebar/toto.jpg"
 
 const TopDriverDetails = () => {
   const { driverId } = useParams();
@@ -113,8 +114,8 @@ const TopDriverDetails = () => {
                     <MdEmail className="w-5 h-5 mr-2" />
                     <span>{driverDetails.email || 'N/A'}</span>
                   </div>
-                  <div className="flex items-center">
-                    <MdDirectionsCar className="w-5 h-5 mr-2" />
+                  <div className="flex items-center gap-2">
+                    <img className='w-10 h-10  rounded-full' src={toto} alt="" />
                     <span>{rideCount || '0'} Rides</span>
                   </div>
                 </div>
