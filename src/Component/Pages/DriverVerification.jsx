@@ -49,7 +49,6 @@ const DriverVerification = () => {
       setRejectedDrivers(rejectedResponse.data.drivers || []);
     } catch (error) {
       console.error("Error fetching drivers:", error);
-      alert("Failed to fetch drivers. Please try again.");
     } finally {
       setLoading(prev => ({ ...prev, fetch: false }));
     }
@@ -67,7 +66,6 @@ const DriverVerification = () => {
       setRejectedDrivers(prev => prev.filter(d => d._id !== driverId));
     } catch (error) {
       console.error(`Error approving driver ${driver.name}:`, error);
-      alert("Failed to approve driver. Please try again.");
     } finally {
       setLoading(prev => ({ ...prev, [driverId]: null }));
     }
@@ -100,7 +98,6 @@ const DriverVerification = () => {
       setSelectedDriverForReject(null);
     } catch (error) {
       console.error(`Error rejecting driver ${selectedDriverForReject.name}:`, error);
-      alert("Failed to reject driver. Please try again.");
     } finally {
       setLoading(prev => ({ ...prev, [driverId]: null }));
     }
@@ -121,7 +118,6 @@ const DriverVerification = () => {
       setRejectedDrivers(prev => prev.filter(d => d._id !== driverId));
     } catch (error) {
       console.error(`Error deleting driver ${driver.name}:`, error);
-      alert("Failed to delete driver. Please try again.");
     } finally {
       setLoading(prev => ({ ...prev, [driverId]: null }));
     }
@@ -334,7 +330,7 @@ const DriverVerification = () => {
                           </div>
                           {user.vehicle_number && (
                             <div className="flex items-center space-x-1">
-                              <img className='h-8 w-8 rounded-full' src={toto} alt="" />
+                              <img className='h-8 w-8 rounded-full' src={toto} alt="Toto" />
                               <span className="font-mono">{user.vehicle_number}</span>
                             </div>
                           )}
@@ -414,7 +410,7 @@ const DriverVerification = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4"><img className='w-10 h-10 md:w-14 md:h-14 rounded-full mx-auto' src={toto} alt="" /></div>
+                <div className="text-6xl mb-4"><img className='w-10 h-10 md:w-14 md:h-14 rounded-full mx-auto' src={toto} alt="Toto" /></div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   No {activeTab === "new" ? "pending" : "rejected"} drivers found
                 </h3>
@@ -569,10 +565,10 @@ const DriverVerification = () => {
                 <div className="space-y-4">
                   {selectedUserData.vehicle_number && (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                     <img className='h-8 w-8 rounded-full' src={toto} alt="" />
+                      <img className='h-8 w-8 rounded-full' src={toto} alt="Toto" />
                       <div>
                         <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                          Vehicle Number
+                          Toto Number
                         </label>
                         <p className="text-gray-900 dark:text-white font-mono">
                           {selectedUserData.vehicle_number}
