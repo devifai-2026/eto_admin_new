@@ -10,6 +10,7 @@ import {
   FiTrendingUp,
   FiChevronLeft,
 } from 'react-icons/fi';
+import { Helmet } from 'react-helmet';
 
 const AllPassengerDetails = () => {
   const { passengerId } = useParams();
