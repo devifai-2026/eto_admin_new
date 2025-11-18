@@ -5,7 +5,6 @@ import Breadcrumbs from '../Breadcrumbs/BreadCrumbs';
 import {
   FiEye,
   FiX,
-  FiDollarSign,
   FiCalendar,
   FiUser,
   FiPhone,
@@ -14,6 +13,7 @@ import {
   FiFilter
 } from "react-icons/fi";
 import { Helmet } from "react-helmet";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const DueRequest = () => {
   const navigate = useNavigate();
@@ -225,7 +225,7 @@ const DueRequest = () => {
                 <p className="text-blue-100 text-xs sm:text-sm">Total Requests</p>
                 <p className="text-lg sm:text-2xl font-bold mt-1">{requests.length}</p>
               </div>
-              <FiDollarSign className="text-xl sm:text-3xl text-blue-200" />
+              <FaIndianRupeeSign className="text-xl sm:text-3xl text-blue-200" />
             </div>
           </div>
 
@@ -255,7 +255,7 @@ const DueRequest = () => {
                 <p className="text-red-100 text-xs sm:text-sm">Total Amount</p>
                 <p className="text-lg sm:text-2xl font-bold mt-1">₹{getTotalAmount().toLocaleString()}</p>
               </div>
-              <FiDollarSign className="text-xl sm:text-3xl text-red-200" />
+              <FaIndianRupeeSign className="text-xl sm:text-3xl text-red-200" />
             </div>
           </div>
         </div>
@@ -461,7 +461,7 @@ const DueRequest = () => {
 
                       <td className="px-4 lg:px-6 py-4">
                         <span className="px-3 py-1 inline-flex items-center rounded-full text-sm font-semibold text-green-800 bg-green-100 dark:bg-green-900 dark:text-green-200">
-                          <FiDollarSign size={14} className="mr-1" />
+                          <FaIndianRupeeSign size={14} className="mr-1" />
                           ₹{(request.dueAmount || 0).toLocaleString()}
                         </span>
                       </td>

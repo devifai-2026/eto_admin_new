@@ -5,7 +5,6 @@ import Breadcrumbs from '../Breadcrumbs/BreadCrumbs';
 import {
   FiEye,
   FiX,
-  FiDollarSign,
   FiCalendar,
   FiUser,
   FiPhone,
@@ -15,6 +14,7 @@ import {
   FiFilter
 } from "react-icons/fi";
 import { Helmet } from "react-helmet";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const RideHistory = () => {
   const navigate = useNavigate();
@@ -235,7 +235,7 @@ const RideHistory = () => {
                 <p className="text-green-100 text-xs sm:text-sm">Total Revenue</p>
                 <p className="text-lg sm:text-2xl font-bold mt-1">₹{getTotalRevenue().toLocaleString()}</p>
               </div>
-              <FiDollarSign className="text-xl sm:text-3xl text-green-200" />
+              <FaIndianRupeeSign className="text-xl sm:text-3xl text-green-200" />
             </div>
           </div>
 
@@ -245,7 +245,7 @@ const RideHistory = () => {
                 <p className="text-purple-100 text-xs sm:text-sm">Admin Profit</p>
                 <p className="text-lg sm:text-2xl font-bold mt-1">₹{getTotalAdminProfit().toLocaleString()}</p>
               </div>
-              <FiDollarSign className="text-xl sm:text-3xl text-purple-200" />
+              <FaIndianRupeeSign className="text-xl sm:text-3xl text-purple-200" />
             </div>
           </div>
 
@@ -255,7 +255,7 @@ const RideHistory = () => {
                 <p className="text-orange-100 text-xs sm:text-sm">Driver Profit</p>
                 <p className="text-lg sm:text-2xl font-bold mt-1">₹{getTotalDriverProfit().toLocaleString()}</p>
               </div>
-              <FiDollarSign className="text-xl sm:text-3xl text-orange-200" />
+              <FaIndianRupeeSign className="text-xl sm:text-3xl text-orange-200" />
             </div>
           </div>
         </div>
@@ -584,7 +584,7 @@ const RideHistory = () => {
                       {/* Amount Column */}
                       <td className="px-4 lg:px-6 py-4 text-center">
                         <span className="px-3 py-1 inline-flex items-center rounded-full text-sm font-semibold text-green-800 bg-green-100 dark:bg-green-900 dark:text-green-200">
-                          <FiDollarSign size={14} className="mr-1" />
+                          <FaIndianRupeeSign size={14} className="mr-1" />
                           ₹{(ride.total_amount || 0).toLocaleString()}
                         </span>
                       </td>

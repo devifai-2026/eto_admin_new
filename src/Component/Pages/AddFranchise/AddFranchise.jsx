@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { FaIndianRupeeSign } from 'react-icons/fa6';
 import { 
     FiPlus, 
     FiUser, 
@@ -13,7 +14,6 @@ import {
     FiFileText,
     FiUpload,
     FiX,
-    FiDollarSign,
     FiHome as FiBuilding,
     FiTrash2
 } from 'react-icons/fi';
@@ -526,7 +526,7 @@ const AddFranchise = () => {
                                             Account Number *
                                         </label>
                                         <div className="relative">
-                                            <FiDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                            <FaIndianRupeeSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                             <input
                                                 type="text"
                                                 required

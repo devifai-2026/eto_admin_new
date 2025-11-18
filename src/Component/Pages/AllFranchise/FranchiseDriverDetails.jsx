@@ -8,7 +8,7 @@ import {
     FiHome, 
     FiGlobe,
     FiCreditCard,
-    FiDollarSign,
+
     FiFileText,
     FiArrowLeft,
     FiEdit,
@@ -19,6 +19,7 @@ import {
     FiTruck
 } from "react-icons/fi";
 import { Helmet } from 'react-helmet';
+import { FaIndianRupeeSign } from 'react-icons/fa6';
 
 const FranchiseDriverDetails = () => {
     const { driverId } = useParams();
@@ -212,7 +213,7 @@ const FranchiseDriverDetails = () => {
                                     ₹{driverDetails.total_earning?.toLocaleString() || '0'}
                                 </p>
                             </div>
-                            <FiDollarSign className="text-2xl text-green-500" />
+                            <FaIndianRupeeSign className="text-2xl text-green-500" />
                         </div>
                     </div>
 
