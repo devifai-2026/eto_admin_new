@@ -12,7 +12,9 @@ import {
   FiMail,
   FiArrowUpRight,
   FiChevronLeft,
-  FiCreditCard
+  FiCreditCard,
+  FiCalendar,
+  FiSearch
 } from 'react-icons/fi';
 import { Helmet } from 'react-helmet';
 
@@ -22,6 +24,12 @@ const AllDriverDetails = () => {
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    from: '',
+    to: ''
+  });
+  const [rangeData, setRangeData] = useState(null);
+  const [loadingRange, setLoadingRange] = useState(false);
 
   useEffect(() => {
     const fetchDriverDetails = async () => {
@@ -44,6 +52,35 @@ const AllDriverDetails = () => {
 
     fetchDriverDetails();
   }, [driverId]);
+
+  const handleDateRangeSearch = async () => {
+    if (!dateRange.from || !dateRange.to) {
+      return;
+    }
+
+    try {
+      setLoadingRange(true);
+      // Mock API call - replace with actual API endpoint
+      const rangeDataResponse = await allDriverAPI.getDriverRangeData(driverId, dateRange);
+      setRangeData(rangeDataResponse);
+    } catch (err) {
+      console.error('Error fetching range data:', err);
+    } finally {
+      setLoadingRange(false);
+    }
+  };
+
+  const handleDateChange = (field, value) => {
+    setDateRange(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const clearDateRange = () => {
+    setDateRange({ from: '', to: '' });
+    setRangeData(null);
+  };
 
   if (loading) {
     return (
@@ -77,8 +114,9 @@ const AllDriverDetails = () => {
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Helmet>
-              <title>Admin | All Drivers Details</title>
-            </Helmet>
+        <title>Admin | All Drivers Details</title>
+      </Helmet>
+      
       {/* Header with Back Button */}
       <div className="mb-6 flex items-center justify-between">
         <button
@@ -294,6 +332,102 @@ const AllDriverDetails = () => {
           </div>
         </div>
 
+        {/* Date Range Work Information */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3 mb-4">
+            <FiCalendar className="text-blue-600 dark:text-blue-400 text-xl" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Work Information (Date Range)
+            </h3>
+          </div>
+          
+          {/* Date Range Picker */}
+          <div className="space-y-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  From Date
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.from}
+                  onChange={(e) => handleDateChange('from', e.target.value)}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  To Date
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.to}
+                  onChange={(e) => handleDateChange('to', e.target.value)}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handleDateRangeSearch}
+                disabled={!dateRange.from || !dateRange.to || loadingRange}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <FiSearch size={16} />
+                {loadingRange ? 'Searching...' : 'Search'}
+              </button>
+              
+              <button
+                onClick={clearDateRange}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          {/* Range Data Display */}
+          <div className="space-y-4">
+            {loadingRange ? (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">Loading range data...</p>
+              </div>
+            ) : rangeData ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Rides in Range:</span>
+                  <span className="text-gray-900 dark:text-white">{rangeData.rides || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Earnings in Range:</span>
+                  <span className="text-gray-900 dark:text-white font-semibold">₹{(rangeData.earnings || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Cash Wallet:</span>
+                  <span className="text-gray-900 dark:text-white">₹{(rangeData.cash_wallet || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Online Wallet:</span>
+                  <span className="text-gray-900 dark:text-white">₹{(rangeData.online_wallet || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600 dark:text-gray-300">Due Wallet:</span>
+                  <span className="text-gray-900 dark:text-white">₹{(rangeData.due_wallet || 0).toLocaleString()}</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <FiCalendar className="mx-auto text-gray-400 mb-2" size={24} />
+                <p className="text-gray-500 dark:text-gray-400">
+                  Select a date range to view work information
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* ETO Card Information */}
         {driver.etoCard && (
           <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
@@ -389,7 +523,7 @@ const DocumentCard = ({ url, title }) => {
         src={url}
         alt={title}
         className="w-20 h-20 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform"
-      onError={(e) => {
+        onError={(e) => {
           e.target.src = '/default-document.png';
         }}
       />
