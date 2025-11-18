@@ -14,13 +14,14 @@ import {
   FiUser,
   FiPhone,
   FiMapPin,
-  FiDollarSign,
+
   FiCalendar,
   FiClock,
   FiNavigation,
 } from "react-icons/fi";
 import Breadcrumbs from "../Breadcrumbs/BreadCrumbs";
 import { Helmet } from "react-helmet";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const RideHistoryDetails = () => {
   const { rideHistoryId } = useParams();
@@ -473,7 +474,7 @@ const RideHistoryDetails = () => {
 
                 <div className="text-center">
                   <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-                    <FiDollarSign
+                    <FaIndianRupeeSign
                       size={20}
                       className="text-green-500 mx-auto mb-2"
                     />

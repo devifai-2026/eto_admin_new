@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { FaIndianRupeeSign } from 'react-icons/fa6';
 import { 
-    FiPlus, 
+
     FiUser, 
-    FiMail, 
-    FiPhone, 
+
     FiMapPin,
-    FiCreditCard,
-    FiDollarSign,
+
     FiTrendingUp,
     FiEye,
     FiEdit,
@@ -236,7 +235,7 @@ const AllFranchise = () => {
                                     ₹{getTotalEarnings().toLocaleString()}
                                 </p>
                             </div>
-                            <FiDollarSign className="text-xl sm:text-3xl text-purple-200" />
+                            <FaIndianRupeeSign className="text-xl sm:text-3xl text-purple-200" />
                         </div>
                     </div>
 

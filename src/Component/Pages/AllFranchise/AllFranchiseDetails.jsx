@@ -8,7 +8,6 @@ import {
     FiHome, 
     FiGlobe,
     FiCreditCard,
-    FiDollarSign,
     FiFileText,
     FiCalendar,
     FiArrowLeft,
@@ -17,6 +16,7 @@ import {
 } from "react-icons/fi";
 import { TbKeyframeAlignCenter } from "react-icons/tb";
 import { Helmet } from 'react-helmet';
+import { FaIndianRupeeSign } from 'react-icons/fa6';
 
 const AllFranchiseDetails = () => {
     const { franchiseId } = useParams();
@@ -192,7 +192,7 @@ const AllFranchiseDetails = () => {
                     ₹{franchise.totalEarnings?.toLocaleString() || '0'}
                 </p>
             </div>
-            <FiDollarSign className="text-lg sm:text-xl lg:text-2xl text-green-500 flex-shrink-0 ml-2" />
+            <FaIndianRupeeSign className="text-lg sm:text-xl lg:text-2xl text-green-500 flex-shrink-0 ml-2" />
         </div>
     </div>
 

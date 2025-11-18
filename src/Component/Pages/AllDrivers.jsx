@@ -6,9 +6,9 @@ import {
   FiSearch,
   FiFilter,
   FiUser,
-  FiPhone,
+
   FiCreditCard,
-  FiDollarSign,
+ 
   FiTrendingUp,
   FiEye,
   FiTrash2,
@@ -206,7 +206,7 @@ const AllDrivers = () => {
                   ₹{drivers.reduce((total, driver) => total + (driver.total_earning || 0), 0).toLocaleString()}
                 </p>
               </div>
-              <FiDollarSign className="text-2xl sm:text-3xl text-purple-200" />
+              <FaIndianRupeeSign className="text-2xl sm:text-3xl text-purple-200" />
             </div>
           </div>
 
