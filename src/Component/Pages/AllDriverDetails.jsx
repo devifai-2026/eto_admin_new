@@ -313,6 +313,14 @@ const AllDriverDetails = () => {
                 <span className="text-gray-900 dark:text-white">{driver.etoCard.helpLine_num || '-'}</span>
               </div>
               <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Driver Toto Licence:</span>
+                <span className="text-gray-900 dark:text-white">{driver.etoCard.driver_toto_licence || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Toto Licence:</span>
+                <span className="text-gray-900 dark:text-white">{driver.etoCard.toto_licence || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="font-medium text-gray-600 dark:text-gray-300">Created At:</span>
                 <span className="text-gray-900 dark:text-white">
                   {driver.etoCard.createdAt ? new Date(driver.etoCard.createdAt).toLocaleDateString() : '-'}
