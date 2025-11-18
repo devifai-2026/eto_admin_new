@@ -19,6 +19,7 @@ import {
 } from "react-icons/fi";
 import { allDriverAPI } from "../../apis/AllDriver";
 import { Helmet } from "react-helmet";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const AllDrivers = () => {
   const navigate = useNavigate();

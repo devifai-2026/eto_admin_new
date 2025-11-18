@@ -20,6 +20,7 @@ import {
   FiNavigation,
   FiFlag
 } from 'react-icons/fi';
+import { Helmet } from 'react-helmet';
 
 const BACKEND_URI = import.meta.env.VITE_BACKEND_URI;
 
