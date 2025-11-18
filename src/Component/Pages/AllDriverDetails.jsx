@@ -343,20 +343,20 @@ const AllDriverDetails = () => {
           {driver.aadhar_front_photo && (
             <DocumentCard
               url={driver.aadhar_front_photo}
-              title="Aadhar Front"
+              title="Document Front"
             />
           )}
           {driver.aadhar_back_photo && (
             <DocumentCard
               url={driver.aadhar_back_photo}
-              title="Aadhar Back"
+              title="Document Back"
             />
           )}
           {driver.car_photo && Array.isArray(driver.car_photo) && driver.car_photo.map((photo, index) => (
             <DocumentCard
               key={index}
               url={photo}
-              title={`Car Photo ${index + 1}`}
+              title={`Toto Photo ${index + 1}`}
             />
           ))}
         </div>
