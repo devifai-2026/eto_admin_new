@@ -262,7 +262,7 @@ const TopDriverDetails = () => {
                   
                   {/* Aadhar Photos */}
                   <div className="mb-6">
-                    <h4 className="font-semibold mb-3 text-gray-700 dark:text-gray-300">Aadhar Card</h4>
+                    <h4 className="font-semibold mb-3 text-gray-700 dark:text-gray-300">Documents Photos</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center">
                         <img
