@@ -489,7 +489,7 @@ const RideHistoryDetails = () => {
 
                 <div className="text-center">
                   <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-                    <MdAttachMoney
+                    <FaIndianRupeeSign
                       size={20}
                       className="text-purple-500 mx-auto mb-2"
                     />
@@ -504,7 +504,7 @@ const RideHistoryDetails = () => {
 
                 <div className="text-center">
                   <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
-                    <MdAttachMoney
+                    <FaIndianRupeeSign
                       size={20}
                       className="text-orange-500 mx-auto mb-2"
                     />
