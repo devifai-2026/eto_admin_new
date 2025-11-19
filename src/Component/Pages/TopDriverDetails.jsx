@@ -243,11 +243,11 @@ const TopDriverDetails = () => {
                         <span className="font-medium text-gray-800 dark:text-white">{etoCard.helpLine_num}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Card Created:</span>
+                        <span className="text-gray-600 dark:text-gray-300">Created At:</span>
                         <span className="font-medium text-gray-800 dark:text-white">{formatDate(etoCard.createdAt)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Card Updated:</span>
+                        <span className="text-gray-600 dark:text-gray-300">Joined At</span>
                         <span className="font-medium text-gray-800 dark:text-white">{formatDate(etoCard.updatedAt)}</span>
                       </div>
                     </div>
