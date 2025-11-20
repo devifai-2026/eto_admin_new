@@ -186,7 +186,7 @@ const TopDriverDetails = () => {
                 {/* Ride Information */}
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
                   <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-3">
-                   <FaCarSide className='text-red-500' /> Ride Information
+                   <img src={toto} className='w-10 h-10  rounded-full' alt="" /> Ride Information
                   </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
