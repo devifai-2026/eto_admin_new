@@ -5,7 +5,7 @@ export const dueRequestAPI = {
   // Get all pending due requests
   getPendingDueRequests: async () => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/dueRequest/pendingDueRequest');
+      const response = await axiosInstance.get('/dueRequest/pendingDueRequest');
       
       console.log("Full API Response:", response);
       console.log("Response Data:", response.data);
@@ -49,7 +49,7 @@ export const dueRequestAPI = {
   // Get due request by ID
   getDueRequestById: async (requestId) => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/dueRequest/pendingDueRequest');
+      const response = await axiosInstance.get('/dueRequest/pendingDueRequest');
       
       let requestsData = [];
       
@@ -90,7 +90,7 @@ export const dueRequestAPI = {
   updateDueRequestStatus: async (requestId, updateData) => {
     try {
       const response = await axiosInstance.patch(
-        `/eto/api/v1/dueRequest/updateDueRequestStatus/${requestId}`,
+        `/dueRequest/updateDueRequestStatus/${requestId}`,
         updateData
       );
       return response.data;

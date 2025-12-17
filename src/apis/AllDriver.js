@@ -5,7 +5,7 @@ export const allDriverAPI = {
   // Get all drivers
   getAllDrivers: async () => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/driver');
+      const response = await axiosInstance.get('/driver');
       return response.data;
     } catch (error) {
       console.error('Error fetching all drivers:', error);
@@ -16,12 +16,8 @@ export const allDriverAPI = {
   // Get driver by ID
   getDriverById: async (driverId) => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/driver');
-      const drivers = response.data.data.drivers;
-      const driver = drivers.find(d => {
-        const id = typeof d._id === 'object' && '$oid' in d._id ? d._id.$oid : d._id;
-        return id === driverId;
-      });
+      const response = await axiosInstance.get(`/driver/${driverId}`);
+      const driver = response.data;
       return driver;
     } catch (error) {
       console.error('Error fetching driver details:', error);
@@ -32,7 +28,7 @@ export const allDriverAPI = {
   // Delete driver
   deleteDriver: async (driverId) => {
     try {
-      const response = await axiosInstance.delete(`/eto/api/v1/driver/deleteAccount/${driverId}`);
+      const response = await axiosInstance.delete(`/deleteAccount/${driverId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting driver:', error);
@@ -43,7 +39,7 @@ export const allDriverAPI = {
   // Update driver status
   updateDriverStatus: async (driverId, status) => {
     try {
-      const response = await axiosInstance.patch(`/eto/api/v1/driver/${driverId}`, {
+      const response = await axiosInstance.patch(`/driver/${driverId}`, {
         isActive: status
       });
       return response.data;

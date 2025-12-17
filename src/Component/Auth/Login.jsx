@@ -1,33 +1,40 @@
-// components/Login.jsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
-import loginAPI from '../../apis/Login';
-import logo from "../../assets/sidebar/ETO_Logo.png"
+import React, { useState, useEffect } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
+import loginAPI from "../../apis/Login";
+import logo from "../../assets/sidebar/ETO_Logo.png";
+import UserTypeSelector from "./UserTypeSelector";
 
 const Login = () => {
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState('phone'); 
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [userType, setUserType] = useState("admin"); // 'admin' or 'franchise'
+  const [step, setStep] = useState("type"); // 'type', 'phone', 'otp'
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [verificationId, setVerificationId] = useState('');
+  const [error, setError] = useState("");
+  const [verificationId, setVerificationId] = useState("1234567");
   const [timer, setTimer] = useState(90);
   const [canResendOtp, setCanResendOtp] = useState(false);
   const navigate = useNavigate();
 
+  // Bypass phone numbers for development
+  const bypassNumbers = {
+    admin: "9830880062",
+    franchise: "8145328152",
+  };
+
   // Check if user is already logged in
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+
     if (token && user) {
-      navigate('/');
+      navigate("/");
     }
   }, [navigate]);
 
   // Timer effect for OTP resend
   useEffect(() => {
-    if (step === 'otp' && timer > 0) {
+    if (step === "otp" && timer > 0) {
       const countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
       return () => clearInterval(countdown);
     } else if (timer === 0) {
@@ -36,50 +43,84 @@ const Login = () => {
   }, [step, timer]);
 
   // If user is already logged in, redirect to home
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
   if (token && user) {
     return <Navigate to="/" replace />;
   }
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
     setPhone(value);
-    setError('');
+    setError("");
   };
 
   const handleOtpChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    const value = e.target.value.replace(/\D/g, "").slice(0, 4);
     setOtp(value);
-    setError('');
+    setError("");
+  };
+
+  const handleUserTypeSelect = () => {
+    if (!userType) {
+      setError("Please select a login type");
+      return;
+    }
+    setStep("phone");
   };
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    
+
     if (!isValidPhone()) {
-      setError('Please enter a valid 10-digit phone number');
+      setError("Please enter a valid 10-digit phone number");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await loginAPI.sendOtp(phone);
+      // Prepare request body based on user type
+      const requestBody = {
+        phone: phone,
+        phone: phone,
+      };
+
+      // Add role-specific flags
+      if (userType === "admin") {
+        requestBody.isAdmin = true;
+        requestBody.isFranchise = false;
+        requestBody.isDriver = false;
+      } else if (userType === "franchise") {
+        requestBody.isAdmin = false;
+        requestBody.isFranchise = true;
+        requestBody.isDriver = false;
+      }
+
+      console.log("Sending OTP with data:", requestBody);
+
+      const response = await loginAPI.sendOtp(requestBody);
 
       if (response.success && response.data.otpdata) {
-        console.log('OTP sent successfully');
-        setVerificationId(response.data.otpdata.verificationId);
-        setStep('otp');
+        console.log("OTP sent successfully");
+        // For bypass numbers, use predefined verificationId
+        if (phone === bypassNumbers[userType]) {
+          setVerificationId("1234567");
+        } else {
+          setVerificationId(response.data.otpdata.verificationId);
+        }
+        setStep("otp");
         setTimer(90);
         setCanResendOtp(false);
       } else {
-        setError(response.message || 'Failed to send OTP');
+        setError(response.message || "Failed to send OTP");
       }
     } catch (err) {
-      console.error('Send OTP error:', err);
-      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+      console.error("Send OTP error:", err);
+      setError(
+        err.response?.data?.message || "Failed to send OTP. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -87,34 +128,52 @@ const Login = () => {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    
+
     if (otp.length !== 4) {
-      setError('Please enter a valid 4-digit OTP');
+      setError("Please enter a valid 4-digit OTP");
+      return;
+    }
+
+    // For bypass numbers, use fixed OTP
+    if (phone === bypassNumbers[userType] && otp !== "1234") {
+      setError("For test numbers, use OTP: 1234");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await loginAPI.verifyOtp(phone, verificationId, otp);
 
       if (response.success) {
-        console.log('OTP verified successfully:', response.data);
+        console.log("Login successful:", response.data);
 
-        // Store user details and data in localStorage
-        localStorage.setItem('user', JSON.stringify(response.data.userDetails));
-        localStorage.setItem('data', JSON.stringify(response.data));
-        localStorage.setItem('token', response.data.token); // If token is provided
+        // Store user details
+        localStorage.setItem("user", JSON.stringify(response.data.userDetails));
+        localStorage.setItem("userType", userType);
+        localStorage.setItem("data", JSON.stringify(response.data));
+        localStorage.setItem("token", response.data.accessToken);
 
-        // Navigate to home/dashboard
-        navigate('/');
+        // Store refresh token if available
+        if (response.data.refreshToken) {
+          localStorage.setItem("refreshToken", response.data.refreshToken);
+        }
+
+        // Navigate based on user type
+        if (userType === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/franchise/dashboard");
+        }
       } else {
-        setError(response.message || 'Failed to verify OTP');
+        setError(response.message || "Failed to verify OTP");
       }
     } catch (err) {
-      console.error('Verify OTP error:', err);
-      setError(err.response?.data?.message || 'Verification failed. Please try again.');
+      console.error("Verify OTP error:", err);
+      setError(
+        err.response?.data?.message || "Verification failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -123,22 +182,24 @@ const Login = () => {
   const handleResendOtp = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError("");
 
       const response = await loginAPI.resendOtp(phone);
 
       if (response.success && response.data.otpdata) {
-        console.log('OTP resent successfully');
+        console.log("OTP resent successfully");
         setVerificationId(response.data.otpdata.verificationId);
         setTimer(90);
         setCanResendOtp(false);
-        setOtp(''); // Clear previous OTP
+        setOtp("");
       } else {
-        setError(response.message || 'Failed to resend OTP');
+        setError(response.message || "Failed to resend OTP");
       }
     } catch (err) {
-      console.error('Resend OTP error:', err);
-      setError(err.response?.data?.message || 'Failed to resend OTP. Please try again.');
+      console.error("Resend OTP error:", err);
+      setError(
+        err.response?.data?.message || "Failed to resend OTP. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -154,10 +215,14 @@ const Login = () => {
     return `${phone.slice(0, 3)} ${phone.slice(3, 6)} ${phone.slice(6)}`;
   };
 
-  const handleBackToPhone = () => {
-    setStep('phone');
-    setOtp('');
-    setError('');
+  const handleBack = () => {
+    if (step === "otp") {
+      setStep("phone");
+    } else if (step === "phone") {
+      setStep("type");
+    }
+    setOtp("");
+    setError("");
     setTimer(90);
     setCanResendOtp(false);
   };
@@ -165,7 +230,22 @@ const Login = () => {
   const formatTimer = () => {
     const minutes = Math.floor(timer / 60);
     const seconds = timer % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const getLoginTitle = () => {
+    if (userType === "admin") return "Admin Login";
+    if (userType === "franchise") return "Franchise Login";
+    return "Login";
+  };
+
+  const getBypassHint = () => {
+    if (phone === bypassNumbers[userType]) {
+      return `Test OTP: 1234 (Development mode)`;
+    }
+    return null;
   };
 
   return (
@@ -175,49 +255,108 @@ const Login = () => {
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-center">
           <div className="flex justify-center items-center mb-4">
             <div className="bg-black rounded-full p-3 shadow-lg">
-              <img 
-                src={logo} 
-                alt="ETO Logo" 
+              <img
+                src={logo}
+                alt="ETO Logo"
                 className="w-16 h-16 object-contain"
               />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">
-            ETO Admin Portal
+            ETO {getLoginTitle()}
           </h1>
           <p className="text-blue-100 text-sm">
-            {step === 'phone' ? 'Sign in to continue' : 'Verify your identity'}
+            {step === "type"
+              ? "Select login type"
+              : step === "phone"
+              ? "Enter your phone number"
+              : "Verify your identity"}
           </p>
         </div>
 
         {/* Form Section */}
         <div className="p-8">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              {step === 'phone' ? 'Welcome Back' : 'Enter Verification Code'}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              {step === 'phone' 
-                ? 'Enter your phone number to receive OTP' 
-                : `We've sent a code to +91 ${formatPhoneDisplay()}`}
-            </p>
-          </div>
+          {step === "type" ? (
+            <div className="space-y-6">
+              <UserTypeSelector userType={userType} setUserType={setUserType} />
 
-          {step === 'phone' ? (
-            <form onSubmit={handleSendOtp} className="space-y-6">
               {error && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                  <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+                  <p className="text-red-600 dark:text-red-400 text-sm">
+                    {error}
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={handleUserTypeSelect}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium flex items-center justify-center shadow-md"
+              >
+                Continue with {userType === "admin" ? "Admin" : "Franchise"}{" "}
+                Login
+                <svg
+                  className="w-5 h-5 ml-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : step === "phone" ? (
+            <form onSubmit={handleSendOtp} className="space-y-6">
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center"
+                >
+                  <svg
+                    className="w-5 h-5 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Back
+                </button>
+                <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
+                  {userType === "admin" ? "👑 Admin" : "🏪 Franchise"}
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                  <p className="text-red-600 dark:text-red-400 text-sm">
+                    {error}
+                  </p>
                 </div>
               )}
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Phone Number
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 dark:text-gray-400 font-medium">+91</span>
+                    <span className="text-gray-500 dark:text-gray-400 font-medium">
+                      +91
+                    </span>
                   </div>
                   <input
                     id="phone"
@@ -236,6 +375,11 @@ const Login = () => {
                     Please enter a valid 10-digit phone number
                   </p>
                 )}
+                {phone === bypassNumbers[userType] && (
+                  <p className="text-green-600 dark:text-green-400 text-xs mt-2">
+                    ✅ Test number detected - Use OTP: 1234
+                  </p>
+                )}
               </div>
 
               <button
@@ -249,20 +393,51 @@ const Login = () => {
                     Sending OTP...
                   </>
                 ) : (
-                  'Send OTP'
+                  "Send OTP"
                 )}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center"
+                >
+                  <svg
+                    className="w-5 h-5 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Back
+                </button>
+                <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
+                  {userType === "admin" ? "👑 Admin" : "🏪 Franchise"}
+                </div>
+              </div>
+
               {error && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                  <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+                  <p className="text-red-600 dark:text-red-400 text-sm">
+                    {error}
+                  </p>
                 </div>
               )}
 
               <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Enter OTP Code
                 </label>
                 <input
@@ -276,13 +451,21 @@ const Login = () => {
                   placeholder="0000"
                   maxLength={4}
                 />
+                {getBypassHint() && (
+                  <p className="text-green-600 dark:text-green-400 text-xs mt-2">
+                    {getBypassHint()}
+                  </p>
+                )}
               </div>
 
               {/* Timer and Resend OTP Section */}
               <div className="text-center">
                 {!canResendOtp ? (
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    Resend OTP in: <span className="font-mono text-blue-600 dark:text-blue-400">{formatTimer()}</span>
+                    Resend OTP in:{" "}
+                    <span className="font-mono text-blue-600 dark:text-blue-400">
+                      {formatTimer()}
+                    </span>
                   </p>
                 ) : (
                   <button
@@ -297,7 +480,7 @@ const Login = () => {
                         Resending...
                       </>
                     ) : (
-                      'Resend OTP'
+                      "Resend OTP"
                     )}
                   </button>
                 )}
@@ -306,7 +489,7 @@ const Login = () => {
               <div className="flex space-x-3">
                 <button
                   type="button"
-                  onClick={handleBackToPhone}
+                  onClick={handleBack}
                   className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
                 >
                   Back
@@ -322,7 +505,7 @@ const Login = () => {
                       Verifying...
                     </>
                   ) : (
-                    'Verify OTP'
+                    "Verify OTP"
                   )}
                 </button>
               </div>

@@ -5,7 +5,7 @@ export const topDriverAPI = {
   // Get all top drivers
   getAllTopDrivers: async () => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/driver/topDrivers');
+      const response = await axiosInstance.get('/driver/topDrivers');
       return response.data;
     } catch (error) {
       console.error('Error fetching top drivers:', error);
@@ -16,7 +16,7 @@ export const topDriverAPI = {
   // Get driver by ID from top drivers list
   getDriverById: async (driverId) => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/driver/topDrivers');
+      const response = await axiosInstance.get('/driver/topDrivers');
       const drivers = response.data.data;
       const driver = drivers.find(d => d.driverId === driverId || d.driverDetails._id === driverId);
       return driver;
@@ -29,7 +29,7 @@ export const topDriverAPI = {
   // Get individual driver details directly
   getDriverDetails: async (driverId) => {
     try {
-      const response = await axiosInstance.get(`/eto/api/v1/driver/${driverId}`);
+      const response = await axiosInstance.get(`/driver/${driverId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching driver details:', error);

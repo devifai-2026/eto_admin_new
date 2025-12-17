@@ -5,7 +5,7 @@ export const rideHistoryAPI = {
   // Get all ride history
   getRideHistory: async () => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/rides/rideHistory');
+      const response = await axiosInstance.get('/rides/rideHistory');
       
       console.log("Ride History API Response:", response.data);
       
@@ -50,7 +50,7 @@ export const rideHistoryAPI = {
   // Get ride by ID from ride history
   getRideById: async (rideId) => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/rides/rideHistory');
+      const response = await axiosInstance.get('/rides/rideHistory');
       
       let ridesData = [];
       

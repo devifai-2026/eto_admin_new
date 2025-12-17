@@ -5,7 +5,7 @@ export const allPassengerAPI = {
   // Get all passengers
   getAllPassengers: async () => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/rider');
+      const response = await axiosInstance.get('/rider');
       const passengersArr = Array.isArray(response.data) 
         ? response.data 
         : (response.data?.data?.riders || response.data?.data || []);
@@ -19,7 +19,7 @@ export const allPassengerAPI = {
   // Get passenger by ID
   getPassengerById: async (passengerId) => {
     try {
-      const response = await axiosInstance.get('/eto/api/v1/rider');
+      const response = await axiosInstance.get('/rider');
       const passengers = Array.isArray(response.data) 
         ? response.data 
         : (response.data?.data?.riders || response.data?.data || []);
@@ -41,7 +41,7 @@ export const allPassengerAPI = {
   // Delete passenger
   deletePassenger: async (passengerId) => {
     try {
-      const response = await axiosInstance.delete(`/eto/api/v1/rider/delete/${passengerId}`);
+      const response = await axiosInstance.delete(`/rider/delete/${passengerId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting passenger:', error);
@@ -52,7 +52,7 @@ export const allPassengerAPI = {
   // Update passenger status
   updatePassengerStatus: async (passengerId, status) => {
     try {
-      const response = await axiosInstance.patch(`/eto/api/v1/rider/${passengerId}`, {
+      const response = await axiosInstance.patch(`/rider/${passengerId}`, {
         is_on_ride: status
       });
       return response.data;
