@@ -17,6 +17,7 @@ import { TbBikeFilled } from "react-icons/tb";
 import { TbKeyframeAlignCenter } from "react-icons/tb";
 import logo from "../../assets/sidebar/ETO_Logo.png";
 import { LiaPhoenixFramework } from "react-icons/lia";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -75,14 +76,18 @@ const Sidebar = () => {
       path: "/all-franchise",
       icon: LiaPhoenixFramework,
       label: "All Franchise",
-      nestedPaths: ["/franchise-details","/add-pinCode","/franchise-drivers"],
+      nestedPaths: ["/franchise-details", "/add-pinCode", "/franchise-drivers"],
     },
-     {
+    {
       path: "/fare-settings",
       icon: TbKeyframeAlignCenter,
       label: "Fare Settings",
     },
-   
+    {
+      path: "/commission-settings",
+      icon: FaIndianRupeeSign,
+      label: "Commission Settings",
+    },
   ];
 
   // Function to check if a menu item is active

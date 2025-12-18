@@ -6,6 +6,7 @@ import {
   FiEdit,
   FiMapPin,
   FiTrash2,
+  FiDollarSign,
 } from "react-icons/fi";
 
 const FranchiseTableRow = ({
@@ -19,6 +20,12 @@ const FranchiseTableRow = ({
   getStatusBadge,
   getStatusText,
 }) => {
+  // NEW: Handle Commission Settings
+  const handleCommissionSettings = (franchise) => {
+    // Navigate to commission settings page
+    window.location.href = `/commission-settings/${franchise._id}`;
+  };
+
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
       {/* Franchise Info */}
@@ -64,20 +71,6 @@ const FranchiseTableRow = ({
           {franchise.phone}
         </div>
       </td>
-
-      {/* Location */}
-      {/* <td className="px-4 lg:px-6 py-4">
-        <div className="text-sm text-gray-900 dark:text-white">
-          {franchise.address?.city || "N/A"},{" "}
-          {franchise.address?.state || "N/A"}
-        </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          PIN: {franchise.address?.pincode || "N/A"}
-        </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          District: {franchise.address?.district || "N/A"}
-        </div>
-      </td> */}
 
       {/* Statistics */}
       <td className="px-4 lg:px-6 py-4">
@@ -132,6 +125,14 @@ const FranchiseTableRow = ({
                 >
                   <FiEdit size={14} />
                   <span>Edit</span>
+                </button>
+                {/* NEW: Commission Settings Option */}
+                <button
+                  onClick={() => handleCommissionSettings(franchise)}
+                  className="w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+                >
+                  <FiDollarSign size={14} />
+                  <span>Commission Settings</span>
                 </button>
                 <button
                   onClick={() => handleAddPincode(franchise)}

@@ -25,6 +25,10 @@ import FranchiseDrivers from "../Pages/AllFranchise/FrinchiseDrivers/FranchiseDr
 import FranchiseDriverDetails from "../Pages/AllFranchise/FranchiseDriverDetails";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import FareSettings from "../Pages/FareSettings/FareSettings";
+import AllCommissionSettings from "../Pages/AllFranchise/Commission/AllCommissionSettings";
+import CommissionSettingsDetails from "../Pages/AllFranchise/Commission/CommissionSettingsDetails";
+import EditCommissionSettings from "../Pages/AllFranchise/Commission/EditCommissionSettings";
+import CommissionHistory from "../Pages/AllFranchise/Commission/CommissionHistory";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -254,6 +258,47 @@ const Layout = () => {
               element={
                 <ProtectedRoute>
                   <FareSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/fare-settings"
+              element={
+                <ProtectedRoute>
+                  <FareSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/commission-settings"
+              element={
+                <ProtectedRoute>
+                  <AllCommissionSettings />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/commission-settings/:franchiseId"
+              element={
+                <ProtectedRoute>
+                  <CommissionSettingsDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/commission-settings/:franchiseId/edit"
+              element={
+                <ProtectedRoute>
+                  <EditCommissionSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/commission-settings/:franchiseId/history"
+              element={
+                <ProtectedRoute>
+                  <CommissionHistory />
                 </ProtectedRoute>
               }
             />
