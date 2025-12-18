@@ -24,6 +24,7 @@ import AddPinCode from "../Pages/AllFranchise/AddPinCode";
 import FranchiseDrivers from "../Pages/AllFranchise/FrinchiseDrivers/FranchiseDrivers";
 import FranchiseDriverDetails from "../Pages/AllFranchise/FranchiseDriverDetails";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import FareSettings from "../Pages/FareSettings/FareSettings";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -245,6 +246,14 @@ const Layout = () => {
               element={
                 <ProtectedRoute>
                   <AddPinCode />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/fare-settings"
+              element={
+                <ProtectedRoute>
+                  <FareSettings />
                 </ProtectedRoute>
               }
             />

@@ -77,6 +77,11 @@ const Sidebar = () => {
       label: "All Franchise",
       nestedPaths: ["/franchise-details","/add-pinCode","/franchise-drivers"],
     },
+     {
+      path: "/fare-settings",
+      icon: TbKeyframeAlignCenter,
+      label: "Fare Settings",
+    },
    
   ];
 

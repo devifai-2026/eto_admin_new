@@ -36,9 +36,11 @@ const AllDriverDetails = () => {
       try {
         setLoading(true);
         const driverData = await allDriverAPI.getDriverById(driverId);
+
+        console.log('Fetched driver data:', driverData);
         
         if (driverData) {
-          setDriver(driverData);
+          setDriver(driverData.data);
         } else {
           setError('Driver not found');
         }

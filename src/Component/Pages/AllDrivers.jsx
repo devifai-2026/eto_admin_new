@@ -100,8 +100,7 @@ const AllDrivers = () => {
     }
   };
 
-  const viewDriverDetails = (driver) => {
-    const driverId = typeof driver._id === "object" && "$oid" in driver._id ? driver._id.$oid : driver._id;
+  const viewDriverDetails = (driverId) => {
     navigate(`/all-driver-details/${driverId}`);
   };
 
@@ -346,7 +345,7 @@ const AllDrivers = () => {
                 {/* Actions */}
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => viewDriverDetails(driver)}
+                    onClick={() => viewDriverDetails(driver.userId)}
                     className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
                   >
                     <FiEye size={14} className="mr-1" />
@@ -469,7 +468,7 @@ const AllDrivers = () => {
                     <td className="px-4 lg:px-6 py-4 text-center">
                       <div className="flex justify-center space-x-2">
                         <button
-                          onClick={() => viewDriverDetails(driver)}
+                          onClick={() => viewDriverDetails(driver.userId)}
                           className="inline-flex items-center px-3 py-1 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
                         >
                           <FiEye size={14} className="mr-1" />
