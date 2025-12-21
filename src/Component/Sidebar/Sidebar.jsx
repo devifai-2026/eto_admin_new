@@ -73,6 +73,11 @@ const Sidebar = () => {
       label: "Add Franchise",
     },
     {
+      path: "/drivers-without-franchise",
+      icon: TbKeyframeAlignCenter,
+      label: "Drivers Without Franchise",
+    },
+    {
       path: "/all-franchise",
       icon: LiaPhoenixFramework,
       label: "All Franchise",

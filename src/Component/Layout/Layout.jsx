@@ -29,6 +29,7 @@ import AllCommissionSettings from "../Pages/AllFranchise/Commission/AllCommissio
 import CommissionSettingsDetails from "../Pages/AllFranchise/Commission/CommissionSettingsDetails";
 import EditCommissionSettings from "../Pages/AllFranchise/Commission/EditCommissionSettings";
 import CommissionHistory from "../Pages/AllFranchise/Commission/CommissionHistory";
+import DriversWithoutFranchise from "../Pages/AllFranchise/DriverWithoutFranchise/DriversWithoutFranchise";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -194,6 +195,14 @@ const Layout = () => {
               element={
                 <ProtectedRoute>
                   <DriverVerification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/drivers-without-franchise"
+              element={
+                <ProtectedRoute>
+                  <DriversWithoutFranchise />
                 </ProtectedRoute>
               }
             />
