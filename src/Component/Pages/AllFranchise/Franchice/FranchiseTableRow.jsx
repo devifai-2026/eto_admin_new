@@ -1,4 +1,5 @@
 import React from "react";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 import {
   FiUser,
   FiMoreVertical,
@@ -6,7 +7,6 @@ import {
   FiEdit,
   FiMapPin,
   FiTrash2,
-  FiDollarSign,
 } from "react-icons/fi";
 
 const FranchiseTableRow = ({
@@ -27,7 +27,7 @@ const FranchiseTableRow = ({
   };
 
   return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 border-b border-gray-100 dark:border-gray-700">
       {/* Franchise Info */}
       <td className="px-4 lg:px-6 py-4">
         <div className="flex items-center">
@@ -97,62 +97,67 @@ const FranchiseTableRow = ({
       </td>
 
       {/* Actions */}
-      <td className="px-4 lg:px-6 py-4">
-        <div className="flex flex-col items-center space-y-2">
-          {/* Three dots menu */}
-          <div className="relative">
-            <button
-              onClick={(e) => openActionMenu(franchise._id, e)}
-              className="inline-flex items-center p-2 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              title="More Actions"
-            >
-              <FiMoreVertical size={16} />
-            </button>
-
-            {/* Dropdown Menu */}
-            {activeMenu === franchise._id && (
-              <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
-                <button
-                  onClick={() => handleViewDetails(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiEye size={14} />
-                  <span>View Details</span>
-                </button>
-                <button
-                  onClick={() => handleEdit(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiEdit size={14} />
-                  <span>Edit</span>
-                </button>
-                {/* NEW: Commission Settings Option */}
-                <button
-                  onClick={() => handleCommissionSettings(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiDollarSign size={14} />
-                  <span>Commission Settings</span>
-                </button>
-                <button
-                  onClick={() => handleAddPincode(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiMapPin size={14} />
-                  <span>Add Pincode</span>
-                </button>
-                <button
-                  onClick={() => handleDelete(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiTrash2 size={14} />
-                  <span>Delete</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </td>
+ <td className="px-4 lg:px-6 py-4">
+  <div className="grid grid-cols-3 gap-1.5">
+    {/* Column 1 */}
+    <div className="flex flex-col items-center">
+      <button
+        onClick={() => handleViewDetails(franchise)}
+        className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors mb-1"
+        title="View Details"
+      >
+        <FiEye size={14} />
+      </button>
+      <span className="text-xs text-gray-600 dark:text-gray-400">View</span>
+    </div>
+    
+    <div className="flex flex-col items-center">
+      <button
+        onClick={() => handleEdit(franchise)}
+        className="w-8 h-8 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/40 transition-colors mb-1"
+        title="Edit"
+      >
+        <FiEdit size={14} />
+      </button>
+      <span className="text-xs text-gray-600 dark:text-gray-400">Edit</span>
+    </div>
+    
+    <div className="flex flex-col items-center">
+      <button
+        onClick={() => handleCommissionSettings(franchise)}
+        className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors mb-1"
+        title="Commission"
+      >
+        <FaIndianRupeeSign size={14} />
+      </button>
+      <span className="text-xs text-gray-600 dark:text-gray-400">Commission</span>
+    </div>
+    
+    {/* Column 2 */}
+    <div className="flex flex-col items-center">
+      <button
+        onClick={() => handleAddPincode(franchise)}
+        className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/40 transition-colors mb-1"
+        title="Pincode"
+      >
+        <FiMapPin size={14} />
+      </button>
+      <span className="text-xs text-gray-600 dark:text-gray-400">Pincode</span>
+    </div>
+    
+    <div className="flex flex-col items-center col-span-2">
+      <button
+        onClick={() => handleDelete(franchise)}
+        className="w-full h-8 rounded-lg flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800/40 transition-colors mb-1"
+        title="Delete"
+      >
+        <FiTrash2 size={14} />
+        <span className="ml-1 text-xs font-medium">Delete</span>
+      </button>
+      <span className="text-xs text-gray-600 dark:text-gray-400">Remove franchise</span>
+    </div>
+  </div>
+</td>
     </tr>
   );
 };

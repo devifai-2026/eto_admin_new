@@ -16,6 +16,7 @@ import DriverFilters from "./DriverFilters";
 import DriverTable from "./DriverTable";
 import Pagination from "../../../../utils/Pagination";
 import franchiseAPI from "../../../../apis/franchise";
+import toto from "../../../../assets/sidebar/toto.jpg"
 
 const FranchiseDrivers = () => {
   const { franchiseId } = useParams();
@@ -347,8 +348,8 @@ const FranchiseDrivers = () => {
           {/* Empty State */}
           {(!data.drivers || data.drivers.length === 0) && (
             <div className="text-center py-8 sm:py-12">
-              <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-3 sm:mb-4">
-                🚗
+              <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-3 sm:mb-4 flex justify-center">
+                <img className="rounded-full w-28 h-28" src={toto} alt="" />
               </div>
               <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No drivers found

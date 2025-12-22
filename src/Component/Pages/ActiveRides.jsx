@@ -329,7 +329,7 @@ const ActiveRides = () => {
               ))
             ) : (
               <div className="text-center py-8">
-                <div className="text-gray-400 dark:text-gray-500 text-4xl mb-3">🚗</div>
+                <div className="text-gray-400 dark:text-gray-500 text-4xl mb-3 flex justify-center"><img className="w-28 h-28 rounded-full" src={toto} alt="" /></div>
                 <h3 className="text-base font-medium text-gray-900 dark:text-white mb-2">
                   No active rides
                 </h3>
@@ -436,7 +436,7 @@ const ActiveRides = () => {
                 ) : (
                   <tr>
                     <td colSpan={5} className="py-12 text-center">
-                      <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">🚗</div>
+                      <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4 flex justify-center"><img className="rounded-full w-28 h-28" src={toto} alt="" /></div>
                       <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                         No active rides
                       </h3>

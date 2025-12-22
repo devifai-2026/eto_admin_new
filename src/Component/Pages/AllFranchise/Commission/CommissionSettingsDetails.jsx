@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { FiArrowLeft, FiDollarSign, FiCalendar, FiUser } from "react-icons/fi";
+import { FiArrowLeft, FiCalendar, FiUser } from "react-icons/fi";
 import { toast } from "react-toastify";
 import commissionAPI from "../../../../apis/commissionSettings";
 import LoadingState from "../Franchice/LoadingState";
