@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FiNavigation, FiCalendar, FiDollarSign } from "react-icons/fi";
+import { FiNavigation, FiCalendar} from "react-icons/fi";
 import { FaCalculator } from "react-icons/fa";
 import { MdNightlight, MdCalculate } from "react-icons/md";
 import fareSettingsAPI from "../../../apis/fareSettings";
 import { toast } from "react-toastify";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const FareCalculator = ({ settings }) => {
   const [loading, setLoading] = useState(false);
@@ -247,7 +248,7 @@ const FareCalculator = ({ settings }) => {
                       ₹{calculation.fare_calculation.total_fare}
                     </p>
                   </div>
-                  <FiDollarSign className="text-3xl text-green-500 dark:text-green-400" />
+                  <FaIndianRupeeSign className="text-3xl text-green-500 dark:text-green-400" />
                 </div>
                 {calculation.fare_calculation.is_night_time && (
                   <div className="mt-3 inline-flex items-center px-3 py-1 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full text-sm">
@@ -266,7 +267,7 @@ const FareCalculator = ({ settings }) => {
                   <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
-                        <FiDollarSign className="text-blue-600 dark:text-blue-400" />
+                        <FaIndianRupeeSign className="text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">

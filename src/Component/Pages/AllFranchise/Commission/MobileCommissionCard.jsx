@@ -3,12 +3,11 @@ import {
   FiUser,
   FiMoreVertical,
   FiEye,
-
-  FiDollarSign,
   FiCheckCircle,
   FiXCircle,
 } from "react-icons/fi";
 import { FaHistory } from "react-icons/fa";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const MobileCommissionCard = ({
   franchise,
@@ -99,55 +98,77 @@ const MobileCommissionCard = ({
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex space-x-2">
+      {/* Action Buttons - All visible (No duplicate in dropdown) */}
+      <div className="grid grid-cols-3 gap-2">
         <button
           onClick={() => handleViewDetails(franchise)}
-          className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-xs font-medium"
+          className="inline-flex flex-col items-center justify-center p-2 border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
         >
-          <FiEye size={12} className="mr-1" />
-          View
+          <FiEye size={14} />
+          <span className="text-xs mt-1">View</span>
         </button>
+        
         <button
           onClick={() => handleEdit(franchise)}
-          className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-xs font-medium"
+          className="inline-flex flex-col items-center justify-center p-2 border border-purple-200 dark:border-purple-700 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors"
         >
-          <FiDollarSign size={12} className="mr-1" />
-          Edit
+          <FaIndianRupeeSign size={14} />
+          <span className="text-xs mt-1">Edit</span>
         </button>
+        
         <button
           onClick={() => handleViewHistory(franchise)}
-          className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-colors text-xs font-medium"
+          className="inline-flex flex-col items-center justify-center p-2 border border-green-200 dark:border-green-700 text-green-600 dark:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors"
         >
-          <FaHistory size={12} className="mr-1" />
-          History
+          <FaHistory size={14} />
+          <span className="text-xs mt-1">History</span>
         </button>
       </div>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Only shows Activate/Deactivate actions */}
       {activeMenu === franchise._id && (
         <div className="absolute right-4 top-16 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
-          <button
-            onClick={() => handleViewDetails(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-          >
-            <FiEye size={14} />
-            <span>View Details</span>
-          </button>
-          <button
-            onClick={() => handleEdit(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-          >
-            <FiDollarSign size={14} />
-            <span>Edit Commission</span>
-          </button>
-          <button
-            onClick={() => handleViewHistory(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-          >
-            <FaHistory size={14} />
-            <span>View History</span>
-          </button>
+          {commissionSettings ? (
+            commissionSettings.isActive ? (
+              // Deactivate option
+              <button
+                onClick={() => {
+                  // You'll need to pass handleDeactivate prop from parent
+                  // handleDeactivate(franchise);
+                  openActionMenu(null, e); // Close dropdown
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+              >
+                <FiXCircle size={14} />
+                <span>Deactivate</span>
+              </button>
+            ) : (
+              // Activate option
+              <button
+                onClick={() => {
+                  // You'll need to pass handleActivate prop from parent
+                  // handleActivate(franchise);
+                  openActionMenu(null, e); // Close dropdown
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-green-600 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+              >
+                <FiCheckCircle size={14} />
+                <span>Activate</span>
+              </button>
+            )
+          ) : (
+            // If no commission settings, show "Configure" option
+            <button
+              onClick={() => {
+                handleEdit(franchise);
+                openActionMenu(null, e); // Close dropdown
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+            >
+              <FaIndianRupeeSign size={14} />
+              <span>Configure Now</span>
+            </button>
+          )}
         </div>
       )}
     </div>

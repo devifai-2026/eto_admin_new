@@ -252,86 +252,80 @@ const DriversWithoutFranchise = () => {
             </div>
           </div>
 
-          {/* Mobile Cards */}
-          <div className="sm:hidden">
-            {driversData.drivers.map((driver) => (
-              <MobileDriverCard
-                key={driver._id}
-                driver={driver}
-                selectedDrivers={selectedDrivers}
-                onSelect={handleDriverSelect}
-                onAssign={handleIndividualAssignment}
-              />
-            ))}
-          </div>
+          {/* Content based on whether there are drivers or not */}
+          {driversData.drivers.length > 0 ? (
+            <>
+              {/* Mobile Cards */}
+              <div className="sm:hidden">
+                {driversData.drivers.map((driver) => (
+                  <MobileDriverCard
+                    key={driver._id}
+                    driver={driver}
+                    selectedDrivers={selectedDrivers}
+                    onSelect={handleDriverSelect}
+                    onAssign={handleIndividualAssignment}
+                  />
+                ))}
+              </div>
 
-          {/* Desktop Table */}
-          <div className="hidden sm:block overflow-x-auto">
-            {driversData.drivers.length > 0 ? (
-              <table className="w-full min-w-[1000px]">
-                <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Select
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Driver
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Statistics
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Franchise Availability
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-                  {driversData.drivers.map((driver) => (
-                    <DriversWithoutFranchiseTableRow
-                      key={driver._id}
-                      driver={driver}
-                      selectedDrivers={selectedDrivers}
-                      onSelect={handleDriverSelect}
-                      onAssign={handleIndividualAssignment}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <EmptyState
-                searchTerm={searchTerm}
-                pincodeFilter={pincodeFilter}
-                districtFilter={districtFilter}
-              />
-            )}
-          </div>
+              {/* Desktop Table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full min-w-[1000px]">
+                  <thead>
+                    <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Select
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Driver
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Contact
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Location
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Statistics
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Franchise Availability
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+                    {driversData.drivers.map((driver) => (
+                      <DriversWithoutFranchiseTableRow
+                        key={driver._id}
+                        driver={driver}
+                        selectedDrivers={selectedDrivers}
+                        onSelect={handleDriverSelect}
+                        onAssign={handleIndividualAssignment}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-          {/* Empty State for Mobile */}
-          {driversData.drivers.length === 0 && (
+              {/* Pagination */}
+              {driversData.pagination.pages > 1 && (
+                <Pagination
+                  pagination={driversData.pagination}
+                  onPageChange={setCurrentPage}
+                />
+              )}
+            </>
+          ) : (
+            // Empty State - Shows for all screen sizes
             <EmptyState
               searchTerm={searchTerm}
               pincodeFilter={pincodeFilter}
               districtFilter={districtFilter}
             />
           )}
-
-          {/* Pagination */}
-          {driversData.drivers.length > 0 &&
-            driversData.pagination.pages > 1 && (
-              <Pagination
-                pagination={driversData.pagination}
-                onPageChange={setCurrentPage}
-              />
-            )}
         </div>
       </div>
 

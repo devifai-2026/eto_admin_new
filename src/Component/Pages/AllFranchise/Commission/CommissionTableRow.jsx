@@ -1,13 +1,12 @@
 import React from "react";
 import {
   FiUser,
-  FiMoreVertical,
   FiEye,
-  FiDollarSign,
   FiCheckCircle,
   FiXCircle,
 } from "react-icons/fi";
 import { FaHistory } from "react-icons/fa";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const CommissionTableRow = ({
   franchise,
@@ -25,7 +24,6 @@ const CommissionTableRow = ({
   const lastUpdated = commissionSettings
     ? new Date(commissionSettings.updatedAt).toLocaleDateString()
     : "Never";
-    
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -115,44 +113,43 @@ const CommissionTableRow = ({
         )}
       </td>
 
-      {/* Actions */}
+      {/* Actions - Simple buttons with labels below */}
       <td className="px-4 lg:px-6 py-4">
-        <div className="flex flex-col items-center space-y-2">
-          <div className="relative">
+        <div className="grid grid-cols-3 gap-1.5">
+          {/* View Details */}
+          <div className="flex flex-col items-center">
             <button
-              onClick={(e) => openActionMenu(franchise._id, e)}
-              className="inline-flex items-center p-2 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              title="More Actions"
+              onClick={() => handleViewDetails(franchise)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors mb-1"
+              title="View Details"
             >
-              <FiMoreVertical size={16} />
+              <FiEye size={14} />
             </button>
-
-            {/* Dropdown Menu */}
-            {activeMenu === franchise._id && (
-              <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
-                <button
-                  onClick={() => handleViewDetails(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiEye size={14} />
-                  <span>View Details</span>
-                </button>
-                <button
-                  onClick={() => handleEdit(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FiDollarSign size={14} />
-                  <span>Edit Commission</span>
-                </button>
-                <button
-                  onClick={() => handleViewHistory(franchise)}
-                  className="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <FaHistory size={14} />
-                  <span>View History</span>
-                </button>
-              </div>
-            )}
+            <span className="text-xs text-gray-600 dark:text-gray-400">View</span>
+          </div>
+          
+          {/* Edit Commission */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={() => handleEdit(franchise)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors mb-1"
+              title="Edit Commission"
+            >
+              <FaIndianRupeeSign size={14} />
+            </button>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Edit</span>
+          </div>
+          
+          {/* View History */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={() => handleViewHistory(franchise)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/40 transition-colors mb-1"
+              title="View History"
+            >
+              <FaHistory size={14} />
+            </button>
+            <span className="text-xs text-gray-600 dark:text-gray-400">History</span>
           </div>
         </div>
       </td>

@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { Helmet } from "react-helmet";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import toto from "../../assets/sidebar/toto.jpg"
 
 const RideHistory = () => {
   const navigate = useNavigate();
@@ -450,8 +451,8 @@ const RideHistory = () => {
               ))
             ) : (
               <div className="text-center py-8">
-                <div className="text-gray-400 dark:text-gray-500 text-4xl mb-3">
-                  🚗
+                <div className="text-gray-400 dark:text-gray-500 text-4xl mb-3 flex justify-center">
+                <img className="rounded-full h-28 w-28" src={toto} alt="" />
                 </div>
                 <h3 className="text-base font-medium text-gray-900 dark:text-white mb-2">
                   No rides found
@@ -627,8 +628,8 @@ const RideHistory = () => {
                 ) : (
                   <tr>
                     <td colSpan={7} className="py-8 sm:py-12 text-center">
-                      <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-3 sm:mb-4">
-                        🚗
+                      <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-3 sm:mb-4 flex justify-center">
+                        <img className="rounded-full w-28 h-28" src={toto} alt="" />
                       </div>
                       <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                         No rides found

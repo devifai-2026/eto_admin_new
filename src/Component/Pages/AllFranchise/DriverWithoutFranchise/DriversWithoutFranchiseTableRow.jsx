@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 import {
   FiUser,
   FiPhone,
@@ -6,7 +7,6 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiPackage,
-  FiDollarSign,
   FiInfo,
   FiChevronDown,
   FiChevronUp,
@@ -349,7 +349,7 @@ const DriversWithoutFranchiseTableRow = ({
                       >
                         <div className="flex items-center space-x-2">
                           <div className="p-1.5 bg-blue-100 dark:bg-blue-800 rounded">
-                            <FiDollarSign
+                            <FaIndianRupeeSign
                               size={12}
                               className="text-blue-600 dark:text-blue-400"
                             />

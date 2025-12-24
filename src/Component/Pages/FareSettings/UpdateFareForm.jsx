@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  FiDollarSign,
   FiNavigation,
   FiMoon,
   FiClock,
@@ -8,6 +7,7 @@ import {
 } from "react-icons/fi";
 import fareSettingsAPI from "../../../apis/fareSettings";
 import { toast } from "react-toastify";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const UpdateFareForm = ({ settings, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -185,7 +185,7 @@ const UpdateFareForm = ({ settings, onSuccess }) => {
               Base Fare (₹)
             </label>
             <div className="relative">
-              <FiDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FaIndianRupeeSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="number"
                 step="0.01"
@@ -394,7 +394,7 @@ const UpdateFareForm = ({ settings, onSuccess }) => {
               </>
             ) : (
               <>
-                <FiDollarSign size={18} />
+                <FaIndianRupeeSign size={18} />
                 <span>Update Fare Settings</span>
               </>
             )}

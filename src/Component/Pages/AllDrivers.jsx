@@ -20,6 +20,7 @@ import {
 import { allDriverAPI } from "../../apis/AllDriver";
 import { Helmet } from "react-helmet";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import toto from "../../assets/sidebar/toto.jpg"
 
 const AllDrivers = () => {
   const navigate = useNavigate();
@@ -493,7 +494,7 @@ const AllDrivers = () => {
           {/* Empty State */}
           {filteredDrivers.length === 0 && (
             <div className="text-center py-8 sm:py-12">
-              <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-3 sm:mb-4">🚗</div>
+              <div className="text-gray-400 dark:text-gray-500 text-4xl sm:text-6xl mb-3 sm:mb-4 flex justify-center"><img className="rounded-full w-28 h-28" src={toto} alt="" /></div>
               <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No drivers found
               </h3>

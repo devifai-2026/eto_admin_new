@@ -12,12 +12,14 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiMenu,
+  FiUserX, // Use this instead of FaUserMinus
 } from "react-icons/fi";
 import { TbBikeFilled } from "react-icons/tb";
 import { TbKeyframeAlignCenter } from "react-icons/tb";
-import logo from "../../assets/sidebar/ETO_Logo.png";
 import { LiaPhoenixFramework } from "react-icons/lia";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import { RiUserUnfollowLine } from "react-icons/ri";
+import logo from "../../assets/sidebar/ETO_Logo.png";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -74,7 +76,7 @@ const Sidebar = () => {
     },
     {
       path: "/drivers-without-franchise",
-      icon: TbKeyframeAlignCenter,
+      icon: FiUserX, // Changed from FaUserMinus to FiUserX
       label: "Drivers Without Franchise",
     },
     {
@@ -151,11 +153,11 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={`
-                fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 shadow-xl transform transition-all duration-300 ease-in-out
-                ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} 
-                lg:translate-x-0 lg:static lg:inset-0
-                ${isExpanded ? "w-64" : "w-20"}
-            `}
+          fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 shadow-xl transform transition-all duration-300 ease-in-out
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} 
+          lg:translate-x-0 lg:static lg:inset-0
+          ${isExpanded ? "w-64" : "w-20"}
+        `}
       >
         <div className="flex flex-col h-full">
           {/* Header - Fixed */}
@@ -205,26 +207,34 @@ const Sidebar = () => {
                   const Icon = item.icon;
                   const isActive = isMenuItemActive(item, location.pathname);
 
+                  // Special handling for rupee icon size
+                  const isRupeeIcon = item.icon === FaIndianRupeeSign;
+
                   return (
                     <li key={item.path}>
                       <Link
                         to={item.path}
                         onClick={closeMobileSidebar}
                         className={`
-                                                    flex items-center ${
-                                                      isExpanded
-                                                        ? "space-x-3 px-3"
-                                                        : "justify-center px-2"
-                                                    } py-2 rounded-lg transition-colors
-                                                    ${
-                                                      isActive
-                                                        ? "bg-blue-500 text-white"
-                                                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                    }
-                                                `}
+                          flex items-center ${
+                            isExpanded
+                              ? "space-x-3 px-3"
+                              : "justify-center px-2"
+                          } py-2 rounded-lg transition-colors
+                          ${
+                            isActive
+                              ? "bg-blue-500 text-white"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }
+                        `}
                         title={!isExpanded ? item.label : ""}
                       >
-                        <Icon size={20} />
+                        {/* Adjust rupee icon size */}
+                        {isRupeeIcon ? (
+                          <Icon size={18} className="flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <Icon size={18} className="flex-shrink-0" />
+                        )}
                         {isExpanded && (
                           <span className="font-medium text-sm md:text-base whitespace-nowrap">
                             {item.label}

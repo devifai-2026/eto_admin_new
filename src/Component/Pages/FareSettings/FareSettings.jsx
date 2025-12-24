@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import {
   FiSettings,
-  FiDollarSign,
   FiClock,
   FiRefreshCw,
   FiAlertCircle,
 } from "react-icons/fi";
-import { FaHistory } from "react-icons/fa";
+import { FaHistory, FaRupeeSign } from "react-icons/fa"; // Changed here
 import { MdNightlight, MdSpeed } from "react-icons/md";
 import CurrentFareSettings from "./CurrentFareSettings";
 import UpdateFareForm from "./UpdateFareForm";
@@ -28,7 +27,7 @@ const FareSettings = () => {
 
   const tabs = [
     { id: "current", label: "Current Settings", icon: <FiSettings /> },
-    { id: "update", label: "Update Settings", icon: <FiDollarSign /> },
+    { id: "update", label: "Update Settings", icon: <FaRupeeSign /> }, // Using actual rupee icon
     { id: "calculator", label: "Fare Calculator", icon: <MdSpeed /> },
     { id: "history", label: "Change History", icon: <FaHistory /> },
     {
@@ -160,7 +159,7 @@ const FareSettings = () => {
               <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <FiDollarSign className="text-blue-600 dark:text-blue-400" />
+                    <FaRupeeSign className="text-blue-600 dark:text-blue-400" /> {/* Changed here */}
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">

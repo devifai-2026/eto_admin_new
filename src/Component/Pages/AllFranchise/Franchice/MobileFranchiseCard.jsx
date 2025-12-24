@@ -1,4 +1,5 @@
 import React from "react";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 import {
   FiUser,
   FiMoreVertical,
@@ -19,6 +20,11 @@ const MobileFranchiseCard = ({
   getStatusBadge,
   getStatusText,
 }) => {
+  // NEW: Handle Commission Settings
+  const handleCommissionSettings = (franchise) => {
+    window.location.href = `/commission-settings/${franchise._id}`;
+  };
+
   return (
     <div className="border-b border-gray-200 dark:border-gray-600 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 relative">
       <div className="flex items-start justify-between mb-3">
@@ -118,7 +124,7 @@ const MobileFranchiseCard = ({
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons - Only View and Add Pincode */}
       <div className="flex space-x-2">
         <button
           onClick={() => handleViewDetails(franchise)}
@@ -136,37 +142,37 @@ const MobileFranchiseCard = ({
         </button>
       </div>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Only shows options NOT already in the visible buttons */}
       {activeMenu === franchise._id && (
         <div className="absolute right-4 top-16 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
-          <button
-            onClick={() => handleViewDetails(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-          >
-            <FiEye size={14} />
-            <span>View Details</span>
-          </button>
+          {/* Edit - Only in dropdown */}
           <button
             onClick={() => handleEdit(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+            className="w-full text-left px-4 py-2 text-sm text-green-600 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
           >
             <FiEdit size={14} />
             <span>Edit</span>
           </button>
+          
+          {/* Commission Settings - Only in dropdown */}
           <button
-            onClick={() => handleAddPincode(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+            onClick={() => handleCommissionSettings(franchise)}
+            className="w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
           >
-            <FiMapPin size={14} />
-            <span>Add Pincode</span>
+            <FaIndianRupeeSign size={14} />
+            <span>Commission Settings</span>
           </button>
-          <button
-            onClick={() => handleDelete(franchise)}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-          >
-            <FiTrash2 size={14} />
-            <span>Delete</span>
-          </button>
+          
+          {/* Delete - Only in dropdown */}
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-1 pt-1">
+            <button
+              onClick={() => handleDelete(franchise)}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
+            >
+              <FiTrash2 size={14} />
+              <span>Delete</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -369,40 +369,40 @@ const AddPinCode = () => {
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                     Franchise Information
                   </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        City:
-                      </span>
-                      <span className="text-gray-900 dark:text-white font-medium">
-                        {franchise.address?.city || "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        State:
-                      </span>
-                      <span className="text-gray-900 dark:text-white font-medium">
-                        {franchise.address?.state || "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        District:
-                      </span>
-                      <span className="text-gray-900 dark:text-white font-medium">
-                        {franchise.address?.district || "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Own Pincode:
-                      </span>
-                      <span className="text-gray-900 dark:text-white font-medium font-mono">
-                        {franchise.address?.pincode || "N/A"}
-                      </span>
-                    </div>
-                  </div>
+                 <div className="space-y-2 text-sm">
+  <div className="flex justify-between items-center">
+    <span className="text-gray-500 dark:text-gray-400 w-24">
+      City:
+    </span>
+    <span className="text-gray-900 dark:text-white font-medium text-right">
+      {franchise.address?.city || "N/A"}
+    </span>
+  </div>
+  <div className="flex justify-between items-center">
+    <span className="text-gray-500 dark:text-gray-400 w-24">
+      State:
+    </span>
+    <span className="text-gray-900 dark:text-white font-medium text-right">
+      {franchise.address?.state || "N/A"}
+    </span>
+  </div>
+  <div className="flex justify-between items-center">
+    <span className="text-gray-500 dark:text-gray-400 w-24">
+      District:
+    </span>
+    <span className="text-gray-900 dark:text-white font-medium text-right">
+      {franchise.address?.district || "N/A"}
+    </span>
+  </div>
+  <div className="flex justify-between items-center">
+    <span className="text-gray-500 dark:text-gray-400 w-24">
+      Own Pincode:
+    </span>
+    <span className="text-gray-900 dark:text-white font-medium font-mono text-right">
+      {franchise.address?.pincode || "N/A"}
+    </span>
+  </div>
+</div>
                 </div>
               )}
             </div>
@@ -575,7 +575,7 @@ const AddPinCode = () => {
           </div>
 
           <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+            <div className="text-sm font-bold text-purple-600 dark:text-purple-400">
               {franchise?.address?.city || "N/A"}
             </div>
             <div className="text-sm text-purple-700 dark:text-purple-300">
