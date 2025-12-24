@@ -1,11 +1,10 @@
-// components/Layout/Layout.jsx
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "../Header/Header";
 import Sidebar from "../Sidebar/Sidebar";
 import Dashboard from "../Pages/Dashboard";
 import TopDrivers from "../Pages/TopDrivers";
-import AllDrivers from "../Pages/AllDrivers";
+import AllDrivers from "../Pages/AllDrivers/AllDrivers";
 import AllPassengers from "../Pages/AllPassengers";
 import ActiveRides from "../Pages/ActiveRides";
 import DueRequest from "../Pages/DueRequest";
@@ -85,19 +84,21 @@ const Layout = () => {
         {/* Main Content - Scrollable */}
         <main className="flex-1 p-6 overflow-y-auto bg-gray-50 dark:bg-gray-800">
           <Routes>
-            {/* Add this route for the root path */}
+            {/* Root path - both admin and franchise can access */}
             <Route
               path="/"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
             />
+
+            {/* Admin-only routes */}
             <Route
               path="/top-drivers"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <TopDrivers />
                 </ProtectedRoute>
               }
@@ -105,15 +106,17 @@ const Layout = () => {
             <Route
               path="/top-driver-details/:driverId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <TopDriverDetails />
                 </ProtectedRoute>
               }
             />
+
+            {/* Both admin and franchise can see drivers */}
             <Route
               path="/all-drivers"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <AllDrivers />
                 </ProtectedRoute>
               }
@@ -121,15 +124,17 @@ const Layout = () => {
             <Route
               path="/all-driver-details/:driverId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <AllDriverDetails />
                 </ProtectedRoute>
               }
             />
+
+            {/* Admin-only routes (franchise should not see passengers) */}
             <Route
               path="/all-passengers"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AllPassengers />
                 </ProtectedRoute>
               }
@@ -137,15 +142,17 @@ const Layout = () => {
             <Route
               path="/all-passenger-details/:passengerId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AllPassengersDetails />
                 </ProtectedRoute>
               }
             />
+
+            {/* Both can see active rides */}
             <Route
               path="/active-rides"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <ActiveRides />
                 </ProtectedRoute>
               }
@@ -153,15 +160,17 @@ const Layout = () => {
             <Route
               path="/active-rides-details/:activeRideId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <ActiveRidesDetails />
                 </ProtectedRoute>
               }
             />
+
+            {/* Admin-only */}
             <Route
               path="/due-request"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <DueRequest />
                 </ProtectedRoute>
               }
@@ -169,15 +178,17 @@ const Layout = () => {
             <Route
               path="/due-request/:dueRequestId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <DueRequestDetails />
                 </ProtectedRoute>
               }
             />
+
+            {/* Both can see ride history */}
             <Route
               path="/ride-history"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <RideHistory />
                 </ProtectedRoute>
               }
@@ -185,15 +196,17 @@ const Layout = () => {
             <Route
               path="/ride-history/:rideHistoryId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <RideHistoryDetails />
                 </ProtectedRoute>
               }
             />
+
+            {/* Admin-only */}
             <Route
               path="/driver-verification"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <DriverVerification />
                 </ProtectedRoute>
               }
@@ -201,15 +214,17 @@ const Layout = () => {
             <Route
               path="/drivers-without-franchise"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <DriversWithoutFranchise />
                 </ProtectedRoute>
               }
             />
+
+            {/* Admin-only franchise management */}
             <Route
               path="/add-franchise"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AddFranchise />
                 </ProtectedRoute>
               }
@@ -217,7 +232,7 @@ const Layout = () => {
             <Route
               path="/edit-franchise/:franchiseId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AddFranchise />
                 </ProtectedRoute>
               }
@@ -225,7 +240,7 @@ const Layout = () => {
             <Route
               path="/all-franchise"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AllFranchise />
                 </ProtectedRoute>
               }
@@ -233,7 +248,7 @@ const Layout = () => {
             <Route
               path="/franchise-drivers/:franchiseId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <FranchiseDrivers />
                 </ProtectedRoute>
               }
@@ -241,7 +256,7 @@ const Layout = () => {
             <Route
               path="/franchise-drivers-details/:driverId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <FranchiseDriverDetails />
                 </ProtectedRoute>
               }
@@ -249,7 +264,7 @@ const Layout = () => {
             <Route
               path="/franchise-details/:franchiseId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AllFranchiseDetails />
                 </ProtectedRoute>
               }
@@ -257,23 +272,17 @@ const Layout = () => {
             <Route
               path="/add-pinCode/:id"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AddPinCode />
                 </ProtectedRoute>
               }
             />
+
+            {/* Admin-only settings */}
             <Route
               path="/fare-settings"
               element={
-                <ProtectedRoute>
-                  <FareSettings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/fare-settings"
-              element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <FareSettings />
                 </ProtectedRoute>
               }
@@ -281,16 +290,15 @@ const Layout = () => {
             <Route
               path="/commission-settings"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <AllCommissionSettings />
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/commission-settings/:franchiseId"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <CommissionSettingsDetails />
                 </ProtectedRoute>
               }
@@ -298,7 +306,7 @@ const Layout = () => {
             <Route
               path="/commission-settings/:franchiseId/edit"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <EditCommissionSettings />
                 </ProtectedRoute>
               }
@@ -306,7 +314,7 @@ const Layout = () => {
             <Route
               path="/commission-settings/:franchiseId/history"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <CommissionHistory />
                 </ProtectedRoute>
               }

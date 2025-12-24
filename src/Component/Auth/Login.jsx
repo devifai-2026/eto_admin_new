@@ -20,6 +20,7 @@ const Login = () => {
   const bypassNumbers = {
     admin: "9830880062",
     franchise: "8145328152",
+    franchise: "7872358975",
   };
 
   // Check if user is already logged in
