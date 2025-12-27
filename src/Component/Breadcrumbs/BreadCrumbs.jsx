@@ -26,9 +26,9 @@ const Breadcrumbs = () => {
 
     return (
         <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">
+            {/* <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">
                 {currentPageName}
-            </h1>
+            </h1> */}
         </div>
     );
 };

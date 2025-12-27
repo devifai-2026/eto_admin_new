@@ -14,7 +14,6 @@ import {
   FiUser,
   FiPhone,
   FiMapPin,
-
   FiCalendar,
   FiClock,
   FiNavigation,
@@ -247,7 +246,7 @@ const RideHistoryDetails = () => {
                 Ride Details
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
-                Ride ID: {ride._id || rideHistoryId}
+                Ride ID: {ride.rideId || rideHistoryId}
               </p>
             </div>
           </div>
@@ -268,7 +267,7 @@ const RideHistoryDetails = () => {
               {ride.payment_mode ? ride.payment_mode.toUpperCase() : "N/A"}
             </span>
             <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full text-sm font-medium">
-              {formatDateTime(ride.createdAt)}
+              {formatDateTime(ride.ride_end_time || ride.createdAt)}
             </span>
           </div>
         </div>
@@ -287,10 +286,10 @@ const RideHistoryDetails = () => {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white flex-shrink-0 overflow-hidden">
-                      {ride.driverId?.driver_photo ? (
+                      {ride.driver?.driver_photo ? (
                         <img
-                          src={ride.driverId.driver_photo}
-                          alt={ride.driverId.name}
+                          src={ride.driver.driver_photo}
+                          alt={ride.driver.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.target.style.display = "none";
@@ -302,10 +301,10 @@ const RideHistoryDetails = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900 dark:text-white text-lg">
-                        {ride.driverId?.name || "No Name"}
+                        {ride.driver?.name || "No Name"}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {ride.driverId?.eto_id_num || "No ETO ID"}
+                        {ride.driver?.eto_id_num || "No ETO ID"}
                       </p>
                     </div>
                   </div>
@@ -317,7 +316,7 @@ const RideHistoryDetails = () => {
                         Phone:{" "}
                       </span>
                       <span className="ml-1 font-medium text-gray-900 dark:text-white">
-                        {ride.driverId?.phone || "N/A"}
+                        {ride.driver?.phone || "N/A"}
                       </span>
                     </div>
                     <div className="text-sm">
@@ -325,15 +324,7 @@ const RideHistoryDetails = () => {
                         License:{" "}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {ride.driverId?.license_number || "N/A"}
-                      </span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Vehicle:{" "}
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {ride.driverId?.vehicle_number || "N/A"}
+                        {ride.driver?.license_number || "N/A"}
                       </span>
                     </div>
                   </div>
@@ -349,10 +340,10 @@ const RideHistoryDetails = () => {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="h-16 w-16 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center text-white flex-shrink-0 overflow-hidden">
-                      {ride.riderId?.photo ? (
+                      {ride.rider?.photo ? (
                         <img
-                          src={ride.riderId.photo}
-                          alt={ride.riderId.name}
+                          src={ride.rider.photo}
+                          alt={ride.rider.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.target.style.display = "none";
@@ -364,7 +355,7 @@ const RideHistoryDetails = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900 dark:text-white text-lg">
-                        {ride.riderId?.name || "No Name"}
+                        {ride.rider?.name || "No Name"}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Passenger
@@ -379,7 +370,7 @@ const RideHistoryDetails = () => {
                         Phone:{" "}
                       </span>
                       <span className="ml-1 font-medium text-gray-900 dark:text-white">
-                        {ride.riderId?.phone || "N/A"}
+                        {ride.rider?.phone || "N/A"}
                       </span>
                     </div>
                     <div className="text-sm">
@@ -387,7 +378,7 @@ const RideHistoryDetails = () => {
                         Email:{" "}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {ride.riderId?.email || "N/A"}
+                        {ride.rider?.email || "N/A"}
                       </span>
                     </div>
                   </div>
@@ -567,6 +558,50 @@ const RideHistoryDetails = () => {
               </div>
             </div>
 
+            {/* Franchise Information (if available) */}
+            {ride.franchise && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <FiUser className="mr-2" />
+                  Franchise Information
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Name
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {ride.franchise?.name || "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Phone
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {ride.franchise?.phone || "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Commission
+                    </span>
+                    <span className="font-medium text-purple-600 dark:text-purple-400">
+                      {ride.franchise_commission_rate || 0}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">
+                      Franchise Profit
+                    </span>
+                    <span className="font-bold text-purple-600 dark:text-purple-400">
+                      ₹{ride.franchise_profit?.toLocaleString() || 0}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Ride Timeline */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -628,35 +663,25 @@ const RideHistoryDetails = () => {
                     Ride Status:
                   </span>
                   <span className="font-semibold text-green-600 dark:text-green-400">
-                    Completed
+                    {ride.isCancel_time ? "Canceled" : "Completed"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
-                    Ride Type:
+                    Admin Commission:
                   </span>
-                  <span className="font-semibold">
-                    {ride.ride_type || "Standard"}
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">
+                    {ride.admin_percentage || 0}%
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
-                    Vehicle Type:
+                    Admin Profit:
                   </span>
-                  <span className="font-semibold">
-                    {ride.vehicle_type || "N/A"}
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">
+                    ₹{ride.admin_profit?.toLocaleString() || 0}
                   </span>
                 </div>
-                {ride.rating && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Rating:
-                    </span>
-                    <span className="font-semibold text-yellow-600 dark:text-yellow-400">
-                      {ride.rating} ⭐
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
