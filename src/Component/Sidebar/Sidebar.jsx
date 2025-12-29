@@ -79,7 +79,7 @@ const Sidebar = () => {
       icon: FiClock,
       label: "Due Request",
       nestedPaths: ["/due-request"],
-      allowed: ["admin"],
+      allowed: ["admin", "franchise"],
     },
     {
       path: "/ride-history",

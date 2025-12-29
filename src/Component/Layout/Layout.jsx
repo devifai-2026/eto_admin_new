@@ -7,14 +7,14 @@ import TopDrivers from "../Pages/TopDrivers";
 import AllDrivers from "../Pages/AllDrivers/AllDrivers";
 import AllPassengers from "../Pages/AllPassengers";
 import ActiveRides from "../Pages/ActiveRides";
-import DueRequest from "../Pages/DueRequest";
+import DueRequest from "../Pages/DueRequest/DueRequest";
 import RideHistory from "../Pages/RideHistory";
 import DriverVerification from "../Pages/DriverVerification";
 import TopDriverDetails from "../Pages/TopDriverDetails";
 import AllDriverDetails from "../Pages/AllDriverDetails";
 import AllPassengersDetails from "../Pages/AllPassengersDetails";
 import ActiveRidesDetails from "../Pages/ActiveRidesDetails";
-import DueRequestDetails from "../Pages/DueRequestDetails";
+import DueRequestDetails from "../Pages/DueRequest/DueRequestDetails";
 import RideHistoryDetails from "../Pages/RideHistoryDetails";
 import AddFranchise from "../Pages/AddFranchise/AddFranchise";
 import AllFranchise from "../Pages/AllFranchise/Franchice/AllFranchise";
@@ -170,7 +170,7 @@ const Layout = () => {
             <Route
               path="/due-request"
               element={
-                <ProtectedRoute allowedUserTypes={["admin"]}>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <DueRequest />
                 </ProtectedRoute>
               }
@@ -178,7 +178,7 @@ const Layout = () => {
             <Route
               path="/due-request/:dueRequestId"
               element={
-                <ProtectedRoute allowedUserTypes={["admin"]}>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <DueRequestDetails />
                 </ProtectedRoute>
               }

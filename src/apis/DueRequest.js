@@ -1,52 +1,94 @@
 import axiosInstance from "../utils/axiosInstance";
 
 export const dueRequestAPI = {
-  // Get all pending due requests
-  getPendingDueRequests: async () => {
+  // Get all due requests based on user role
+  getDueRequestsForApprover: async (filters = {}) => {
     try {
-      const response = await axiosInstance.get("/dueRequest/pendingDueRequest");
+      const { userType, adminId, franchiseId, driverId, status, type } = filters;
+      let url = "/dueRequest";
 
-      console.log("Full API Response:", response);
-      console.log("Response Data:", response.data);
+      // Add query parameters based on backend requirements
+      const params = new URLSearchParams();
+      if (userType) params.append("userType", userType);
+      if (adminId) params.append("adminId", adminId);
+      if (franchiseId) params.append("franchiseId", franchiseId);
+      if (driverId) params.append("driverId", driverId);
+      if (status) params.append("status", status);
+      if (type) params.append("type", type);
 
-      let requestsData = [];
-
-      if (Array.isArray(response.data)) {
-        requestsData = response.data;
-      } else if (Array.isArray(response.data.data)) {
-        requestsData = response.data.data;
-      } else if (
-        response.data.data &&
-        Array.isArray(response.data.data.requests)
-      ) {
-        requestsData = response.data.data.requests;
-      } else if (
-        response.data.requests &&
-        Array.isArray(response.data.requests)
-      ) {
-        requestsData = response.data.requests;
-      } else {
-        const findArrayInObject = (obj) => {
-          for (let key in obj) {
-            if (Array.isArray(obj[key])) {
-              return obj[key];
-            }
-            if (typeof obj[key] === "object" && obj[key] !== null) {
-              const result = findArrayInObject(obj[key]);
-              if (result) return result;
-            }
-          }
-          return null;
-        };
-
-        const foundArray = findArrayInObject(response.data);
-        requestsData = foundArray || [];
+      if (params.toString()) {
+        url += `?${params.toString()}`;
       }
 
-      console.log("Final requests data:", requestsData);
-      return requestsData;
+      const response = await axiosInstance.get(url);
+      return response.data;
     } catch (error) {
-      console.error("Error fetching pending due requests:", error);
+      console.error("Error fetching due requests:", error);
+      throw error;
+    }
+  },
+
+  // Create driver due request
+  createDriverDueRequest: async (data) => {
+    try {
+      const response = await axiosInstance.post("/dueRequest", data);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating driver due request:", error);
+      throw error;
+    }
+  },
+
+  // Create franchise due request for weekly bill
+  createFranchiseDueRequest: async (franchiseId, data) => {
+    try {
+      const response = await axiosInstance.post(
+        `/dueRequest/franchise/${franchiseId}`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating franchise due request:", error);
+      throw error;
+    }
+  },
+
+  // Approve due request
+  approveDueRequest: async (dueRequestId, data) => {
+    try {
+      const response = await axiosInstance.patch(
+        `/dueRequest/${dueRequestId}/approve`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error approving due request:", error);
+      throw error;
+    }
+  },
+
+  // Get statistics
+  getStatistics: async (filters = {}) => {
+    try {
+      const { userType, adminId, franchiseId, driverId, startDate, endDate } = filters;
+      let url = "/dueRequest/statistics";
+
+      const params = new URLSearchParams();
+      if (userType) params.append("userType", userType);
+      if (adminId) params.append("adminId", adminId);
+      if (franchiseId) params.append("franchiseId", franchiseId);
+      if (driverId) params.append("driverId", driverId);
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching statistics:", error);
       throw error;
     }
   },
@@ -54,47 +96,87 @@ export const dueRequestAPI = {
   // Get due request by ID
   getDueRequestById: async (dueRequestId) => {
     try {
-      console.log("Fetching due request details for ID:", dueRequestId);
-
-      const response = await axiosInstance.get(
-        `/dueRequest/getDueRequestDetails/${dueRequestId}`
-      );
-
-      // console.log("API Response:", response.data.data);
-
-      // Check for ApiResponse structure
-      if (response.data.statusCode === 200 && response.data.data) {
-        return response.data.data;
-      }
-      // If direct object
-      else if (response.data) {
-        return response.data;
-      }
-
-      console.warn("Unexpected response structure:", response.data);
-      return null;
+      const response = await axiosInstance.get(`/dueRequest/${dueRequestId}`);
+      return response.data;
     } catch (error) {
       console.error("Error fetching due request details:", error);
-      // Return error details for better debugging
-      const errorDetails = {
-        message: error.response?.data?.message || error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      };
-      throw errorDetails;
+      throw error;
     }
   },
 
-  // Update due request status
-  updateDueRequestStatus: async (requestId, updateData) => {
+  // Get franchise pending bills (for manual due request creation)
+  getFranchisePendingBills: async (franchiseId) => {
     try {
-      const response = await axiosInstance.patch(
-        `/dueRequest/updateDueRequestStatus/${requestId}`,
-        updateData
+      const response = await axiosInstance.get(
+        `/dueRequest/franchise/${franchiseId}/pending-bills`
       );
       return response.data;
     } catch (error) {
-      console.error("Error updating due request status:", error);
+      console.error("Error fetching franchise pending bills:", error);
+      throw error;
+    }
+  },
+
+  // Get franchise due request history
+  getFranchiseDueRequestHistory: async (franchiseId, filters = {}) => {
+    try {
+      const { status, limit, page, startDate, endDate } = filters;
+      let url = `/dueRequest/franchise/${franchiseId}/history`;
+
+      const params = new URLSearchParams();
+      if (status) params.append("status", status);
+      if (limit) params.append("limit", limit);
+      if (page) params.append("page", page);
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching franchise due request history:", error);
+      throw error;
+    }
+  },
+
+  // Get franchise billing dashboard
+  getFranchiseBillingDashboard: async (franchiseId) => {
+    try {
+      const response = await axiosInstance.get(
+        `/dueRequest/franchise/${franchiseId}/dashboard`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching franchise billing dashboard:", error);
+      throw error;
+    }
+  },
+
+  // Get admin auto-generated bills
+  getAdminAutoGeneratedBills: async (filters = {}) => {
+    try {
+      const { status, franchiseId, limit, page, startDate, endDate } = filters;
+      let url = "/dueRequest/admin/bills";
+
+      const params = new URLSearchParams();
+      if (status) params.append("status", status);
+      if (franchiseId) params.append("franchiseId", franchiseId);
+      if (limit) params.append("limit", limit);
+      if (page) params.append("page", page);
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching admin auto-generated bills:", error);
       throw error;
     }
   },
