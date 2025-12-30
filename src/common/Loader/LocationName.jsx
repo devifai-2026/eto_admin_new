@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // Get your Google API key from environment variables
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const GOOGLE_API_KEY = "AIzaSyADoCI2hyTYNI3jXfG4jRZzVu0qdMMEH4Q";
 
 const reverseGeocode = async (lat, lng) => {
     // Validate coordinates

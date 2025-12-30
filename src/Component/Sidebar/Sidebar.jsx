@@ -65,7 +65,7 @@ const Sidebar = () => {
       path: "/driver-verification",
       icon: TbBikeFilled,
       label: "Driver Verification",
-      allowed: ["admin"],
+      allowed: ["admin", "franchise"],
     },
     {
       path: "/active-rides",

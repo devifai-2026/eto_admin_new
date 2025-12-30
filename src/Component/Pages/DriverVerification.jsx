@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { driverVerificationAPI } from "../../apis/DriverVerification";
 import {
   FiUser,
@@ -8,137 +9,171 @@ import {
   FiMessageCircle,
   FiTrash2,
   FiEye,
-  FiArrowLeft,
-  FiPhone,
-  FiCreditCard,
-  FiTruck,
   FiSearch,
   FiFilter,
   FiBriefcase,
   FiUsers,
+  FiRefreshCw,
+  FiArrowLeft,
+  FiPhone,
+  FiCreditCard,
+  FiAlertCircle,
+  FiMail,
+  FiMapPin,
+  FiCalendar,
 } from "react-icons/fi";
 import { Helmet } from "react-helmet";
+import Breadcrumbs from "../../Component/Breadcrumbs/BreadCrumbs";
 import toto from "../../assets/sidebar/toto.jpg";
+import loginAPI from "../../apis/Login";
 
 const DriverVerification = () => {
+  const navigate = useNavigate();
   const [selectedUserData, setSelectedUserData] = useState(null);
   const [toggleModal, setToggleModal] = useState(false);
   const [newDrivers, setNewDrivers] = useState([]);
   const [rejectedDrivers, setRejectedDrivers] = useState([]);
+  const [filteredDrivers, setFilteredDrivers] = useState([]);
   const [activeTab, setActiveTab] = useState("new");
-  const [loading, setLoading] = useState({});
+  const [loading, setLoading] = useState({ fetch: false });
+  const [error, setError] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedDriverForReject, setSelectedDriverForReject] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [franchiseInfo, setFranchiseInfo] = useState(null);
-  const [isAdminUser, setIsAdminUser] = useState(true); // Default to admin
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [currentFranchiseId, setCurrentFranchiseId] = useState(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    new: 0,
+    rejected: 0,
+    verifiedToday: 0,
+  });
 
-  useEffect(() => {
-    // Safely get user info from localStorage
-    const getUserInfo = () => {
-      try {
-        // Get user info - check if it's JSON or plain string
-        const userStr = localStorage.getItem("user") || "{}";
-        const userTypeStr = localStorage.getItem("userType") || "";
+  // Get current user information
+  const getCurrentUserInfo = useCallback(() => {
+    try {
+      const user = loginAPI.getCurrentUser();
+      const userType = loginAPI.getUserType();
 
-        console.log("User from localStorage:", userStr);
-        console.log("UserType from localStorage:", userTypeStr);
+      console.log("Current user info:", { user, userType });
 
-        // Parse user info (it should be JSON)
-        let userInfo = {};
-        try {
-          userInfo = userStr ? JSON.parse(userStr) : {};
-        } catch (e) {
-          console.warn("Failed to parse user from localStorage:", e);
-          userInfo = {};
-        }
-
-        // Get userType - it might be a plain string or JSON
-        let userType = "";
-        try {
-          userType = userTypeStr ? JSON.parse(userTypeStr) : "";
-        } catch (e) {
-          // If parsing fails, it's probably a plain string
-          userType = userTypeStr || "";
-        }
-
-        // Get userId and franchiseId
-        const userId = userInfo?._id || userInfo?.userId || userInfo?.id;
-        const franchiseId = userInfo?.franchiseId || userInfo?.franchise?._id;
-
-        console.log("Parsed userType:", userType);
-        console.log("Parsed userId:", userId);
-        console.log("Parsed franchiseId:", franchiseId);
-
-        setIsAdminUser(userType === "admin");
-        setCurrentUserId(userId);
-        setCurrentFranchiseId(franchiseId);
-
-        // If no user info found, redirect to login
-        if (!userId && !userType) {
-          console.log("No user info found, might need to login");
-          // window.location.href = "/login"; // Uncomment if you want to redirect
-        }
-      } catch (error) {
-        console.error("Error getting user info from localStorage:", error);
-      }
-    };
-
-    getUserInfo();
-    fetchDrivers();
+      return {
+        user,
+        userType,
+        userId: user?._id || user?.userId || user?.id,
+        franchiseId: user?.franchiseId || user?._id,
+      };
+    } catch (error) {
+      console.error("Error getting user info:", error);
+      return { user: null, userType: "", userId: null, franchiseId: null };
+    }
   }, []);
 
-  const fetchDrivers = async () => {
+  // Fetch drivers data
+  const fetchDrivers = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, fetch: true }));
+      setError(null);
 
-      // For franchise users, we need to fetch their assigned drivers only
-      if (!isAdminUser && currentFranchiseId) {
-        // You need to create an API endpoint to get franchise's unapproved drivers
-        // For now, I'll use the existing API
-        const [newResponse, rejectedResponse] = await Promise.all([
-          driverVerificationAPI.getNewDrivers(),
-          driverVerificationAPI.getRejectedDrivers(),
-        ]);
+      // Get current user information
+      const { userType, userId, franchiseId } = getCurrentUserInfo();
 
-        // Filter drivers to only show those assigned to this franchise
-        const franchiseNewDrivers = (newResponse.data.drivers || []).filter(
-          (driver) => driver.franchiseId === currentFranchiseId
-        );
+      // Prepare query parameters based on user type
+      const apiParams = {};
 
-        const franchiseRejectedDrivers = (
-          rejectedResponse.data.drivers || []
-        ).filter((driver) => driver.franchiseId === currentFranchiseId);
-
-        setNewDrivers(franchiseNewDrivers);
-        setRejectedDrivers(franchiseRejectedDrivers);
+      if (userType === "admin" && userId) {
+        apiParams.adminId = userId;
+        console.log("Fetching as ADMIN with ID:", userId);
+      } else if (userType === "franchise" && franchiseId) {
+        apiParams.franchiseId = franchiseId;
+        console.log("Fetching as FRANCHISE with ID:", franchiseId);
       } else {
-        // Admin can see all drivers
-        const [newResponse, rejectedResponse] = await Promise.all([
-          driverVerificationAPI.getNewDrivers(),
-          driverVerificationAPI.getRejectedDrivers(),
-        ]);
-
-        setNewDrivers(newResponse.data.drivers || []);
-        setRejectedDrivers(rejectedResponse.data.drivers || []);
+        console.warn("Invalid user type or missing IDs:", { userType, userId, franchiseId });
+        setError("Please login to access driver verification");
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching drivers:", error);
+
+      // Fetch both new and rejected drivers in parallel
+      const [newResponse, rejectedResponse] = await Promise.all([
+        driverVerificationAPI.getNewDrivers(apiParams),
+        driverVerificationAPI.getRejectedDrivers(apiParams),
+      ]);
+
+      console.log("New drivers response:", newResponse);
+      console.log("Rejected drivers response:", rejectedResponse);
+
+      // Update state with fetched data
+      const newDriversData = newResponse.data?.drivers || [];
+      const rejectedDriversData = rejectedResponse.data?.drivers || [];
+
+      setNewDrivers(newDriversData);
+      setRejectedDrivers(rejectedDriversData);
+
+      // Apply search filter if exists
+      applyFilters(searchTerm, newDriversData, rejectedDriversData);
+
+      // Update statistics
+      setStats({
+        total: newDriversData.length + rejectedDriversData.length,
+        new: newDriversData.length,
+        rejected: rejectedDriversData.length,
+        verifiedToday: 0,
+      });
+    } catch (err) {
+      console.error("Error fetching drivers:", err);
+      setError(err.message || "Failed to load drivers");
+      setNewDrivers([]);
+      setRejectedDrivers([]);
+      setFilteredDrivers([]);
     } finally {
       setLoading((prev) => ({ ...prev, fetch: false }));
     }
-  };
+  }, [getCurrentUserInfo, searchTerm]);
 
+  // Apply filters to drivers
+  const applyFilters = useCallback((searchTerm, newDriversData, rejectedDriversData) => {
+    const driversToFilter = activeTab === "new" ? newDriversData : rejectedDriversData;
+    
+    if (!searchTerm.trim()) {
+      setFilteredDrivers(driversToFilter);
+      return;
+    }
+
+    const term = searchTerm.toLowerCase();
+    const filtered = driversToFilter.filter((driver) => {
+      const nameMatch = driver.name?.toLowerCase().includes(term) || false;
+      const phoneMatch = driver.phone?.includes(term) || false;
+      const emailMatch = driver.email?.toLowerCase().includes(term) || false;
+      const licenseMatch = driver.license_number?.toLowerCase().includes(term) || false;
+      const aadharMatch = driver.aadhar_number?.includes(term) || false;
+      const franchiseMatch = driver.franchise?.name?.toLowerCase().includes(term) || false;
+
+      return nameMatch || phoneMatch || emailMatch || licenseMatch || aadharMatch || franchiseMatch;
+    });
+
+    setFilteredDrivers(filtered);
+  }, [activeTab]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchDrivers();
+  }, [fetchDrivers]);
+
+  // Apply filters when search term or active tab changes
+  useEffect(() => {
+    applyFilters(searchTerm, newDrivers, rejectedDrivers);
+  }, [searchTerm, activeTab, newDrivers, rejectedDrivers, applyFilters]);
+
+  // Handle approve driver
   const handleApprove = async (driver) => {
     const driverId = driver._id;
 
-    // Check if driver has franchise and user is franchise
-    if (driver.franchiseId && !isAdminUser) {
-      // Franchise user trying to approve their driver
-      if (driver.franchiseId !== currentFranchiseId) {
+    // Get current user info for authorization check
+    const { userType, userId, franchiseId } = getCurrentUserInfo();
+
+    // Check authorization for franchise users
+    if (userType === "franchise") {
+      const driverFranchiseId = driver.franchise?._id;
+      if (driverFranchiseId !== franchiseId) {
         alert("You can only approve drivers assigned to your franchise");
         return;
       }
@@ -148,32 +183,54 @@ const DriverVerification = () => {
 
     try {
       // Prepare request body based on user type
-      const requestBody = {
-        driverId,
-        ...(isAdminUser
-          ? { adminId: currentUserId }
-          : { franchiseId: currentFranchiseId, adminId: currentUserId }),
-      };
+      const requestBody = { driverId };
 
-      await driverVerificationAPI.approveDriver(requestBody);
+      if (userType === "admin" && userId) {
+        requestBody.adminId = userId;
+      } else if (userType === "franchise" && franchiseId) {
+        requestBody.franchiseId = franchiseId;
+        requestBody.adminId = userId; // Still need adminId for Khata
+      }
 
+      console.log("Approving driver with body:", requestBody);
+
+      const response = await driverVerificationAPI.approveDriver(requestBody);
+
+      // Remove driver from new drivers list
       setNewDrivers((prev) => prev.filter((d) => d._id !== driverId));
-      setRejectedDrivers((prev) => prev.filter((d) => d._id !== driverId));
+      
+      // Update stats
+      setStats((prev) => ({
+        ...prev,
+        new: prev.new - 1,
+        total: prev.total - 1,
+      }));
+
+      // Update filtered drivers
+      applyFilters(searchTerm, newDrivers.filter(d => d._id !== driverId), rejectedDrivers);
 
       alert(`Driver ${driver.name} approved successfully!`);
+      console.log("Approve response:", response);
     } catch (error) {
       console.error(`Error approving driver ${driver.name}:`, error);
-      alert(error.response?.data?.message || "Failed to approve driver");
+      const errorMessage = error.response?.data?.message ||
+                          error.response?.data?.error ||
+                          "Failed to approve driver";
+      alert(errorMessage);
     } finally {
       setLoading((prev) => ({ ...prev, [driverId]: null }));
     }
   };
 
+  // Handle reject driver
   const handleReject = (driver) => {
-    // Check if driver has franchise and user is franchise
-    if (driver.franchiseId && !isAdminUser) {
-      // Franchise user trying to reject their driver
-      if (driver.franchiseId !== currentFranchiseId) {
+    // Get current user info for authorization check
+    const { userType, franchiseId } = getCurrentUserInfo();
+
+    // Check authorization for franchise users
+    if (userType === "franchise") {
+      const driverFranchiseId = driver.franchise?._id;
+      if (driverFranchiseId !== franchiseId) {
         alert("You can only reject drivers assigned to your franchise");
         return;
       }
@@ -184,56 +241,80 @@ const DriverVerification = () => {
   };
 
   const confirmReject = async () => {
-    if (!selectedDriverForReject || !rejectionReason.trim()) return;
+    if (!selectedDriverForReject || !rejectionReason.trim()) {
+      alert("Please provide a rejection reason");
+      return;
+    }
 
     const driverId = selectedDriverForReject._id;
+    const { userType, userId, franchiseId } = getCurrentUserInfo();
 
     setLoading((prev) => ({ ...prev, [driverId]: "reject" }));
 
     try {
-      // Prepare request body based on user type
+      // Prepare request body
       const requestBody = {
         driverId,
         rejectionReason,
-        ...(isAdminUser
-          ? { adminId: currentUserId }
-          : { franchiseId: currentFranchiseId, adminId: currentUserId }),
       };
 
-      await driverVerificationAPI.rejectDriver(requestBody);
+      if (userType === "admin" && userId) {
+        requestBody.adminId = userId;
+      } else if (userType === "franchise" && franchiseId) {
+        requestBody.franchiseId = franchiseId;
+        requestBody.adminId = userId;
+      }
 
-      setNewDrivers((prev) => prev.filter((d) => d._id !== driverId));
-      setRejectedDrivers((prev) => [
+      console.log("Rejecting driver with body:", requestBody);
+
+      const response = await driverVerificationAPI.rejectDriver(requestBody);
+
+      // Remove from new drivers and add to rejected
+      const updatedNewDrivers = newDrivers.filter((d) => d._id !== driverId);
+      const newRejectedDriver = {
+        ...selectedDriverForReject,
+        rejectionReason,
+        rejectedAt: new Date().toISOString(),
+        rejectedBy: userType,
+      };
+
+      setNewDrivers(updatedNewDrivers);
+      setRejectedDrivers((prev) => [...prev, newRejectedDriver]);
+
+      // Update stats
+      setStats((prev) => ({
         ...prev,
-        {
-          ...selectedDriverForReject,
-          rejectionReason,
-          rejectedAt: new Date().toISOString(),
-        },
-      ]);
+        new: prev.new - 1,
+        rejected: prev.rejected + 1,
+      }));
+
+      // Update filtered drivers
+      applyFilters(searchTerm, updatedNewDrivers, [...rejectedDrivers, newRejectedDriver]);
 
       setShowRejectModal(false);
       setRejectionReason("");
       setSelectedDriverForReject(null);
 
       alert(`Driver ${selectedDriverForReject.name} rejected successfully!`);
+      console.log("Reject response:", response);
     } catch (error) {
-      console.error(
-        `Error rejecting driver ${selectedDriverForReject.name}:`,
-        error
-      );
-      alert(error.response?.data?.message || "Failed to reject driver");
+      console.error(`Error rejecting driver ${selectedDriverForReject.name}:`, error);
+      const errorMessage = error.response?.data?.message ||
+                          error.response?.data?.error ||
+                          "Failed to reject driver";
+      alert(errorMessage);
     } finally {
       setLoading((prev) => ({ ...prev, [driverId]: null }));
     }
   };
 
+  // Handle delete driver
   const handleDelete = async (driver) => {
     const driverId = driver._id;
 
     if (
       !window.confirm(
-        `Are you sure you want to delete ${driver.name}? This action cannot be undone.`
+        `Are you sure you want to permanently delete ${driver.name}? This action cannot be undone.`
       )
     ) {
       return;
@@ -244,60 +325,85 @@ const DriverVerification = () => {
     try {
       await driverVerificationAPI.deleteDriver(driverId);
 
-      setRejectedDrivers((prev) => prev.filter((d) => d._id !== driverId));
+      // Remove from rejected drivers
+      const updatedRejectedDrivers = rejectedDrivers.filter((d) => d._id !== driverId);
+      setRejectedDrivers(updatedRejectedDrivers);
+
+      // Update stats
+      setStats((prev) => ({
+        ...prev,
+        rejected: prev.rejected - 1,
+        total: prev.total - 1,
+      }));
+
+      // Update filtered drivers
+      applyFilters(searchTerm, newDrivers, updatedRejectedDrivers);
+
       alert(`Driver ${driver.name} deleted successfully!`);
     } catch (error) {
       console.error(`Error deleting driver ${driver.name}:`, error);
-      alert("Failed to delete driver");
+      const errorMessage = error.response?.data?.message ||
+                          "Failed to delete driver";
+      alert(errorMessage);
     } finally {
       setLoading((prev) => ({ ...prev, [driverId]: null }));
     }
   };
 
+  // Handle WhatsApp
   const handleWhatsApp = (phone) => {
     const cleanPhone = phone.replace(/\D/g, "");
-    window.open(`https://wa.me/${cleanPhone}`, "_blank");
+    window.open(`https://wa.me/+91${cleanPhone}`, "_blank");
   };
 
-  const handleViewProfile = async (user) => {
+  // Handle view profile
+  const handleViewProfile = (user) => {
     setSelectedUserData(user);
     setToggleModal(true);
-
-    // Fetch franchise info if driver has franchise
-    if (user.franchiseId) {
-      try {
-        // You need to create an API to fetch franchise details
-        // const franchiseResponse = await axiosInstance.get(`/franchise/${user.franchiseId}`);
-        // setFranchiseInfo(franchiseResponse.data);
-      } catch (error) {
-        console.error("Error fetching franchise info:", error);
-      }
-    }
   };
 
-  const filteredDrivers = (
-    activeTab === "new" ? newDrivers : rejectedDrivers
-  ).filter(
-    (driver) =>
-      driver.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      driver.phone?.includes(searchTerm) ||
-      driver.aadhar_number?.includes(searchTerm) ||
-      driver.vehicle_number?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Handle tab change
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setFilteredDrivers(tab === "new" ? newDrivers : rejectedDrivers);
+  };
 
+  // Loading spinner component
   const LoadingSpinner = ({ size = 4 }) => (
     <div
       className={`animate-spin rounded-full h-${size} w-${size} border-2 border-white border-t-transparent`}
     ></div>
   );
 
+  // Get user type for display
+  const { userType } = getCurrentUserInfo();
+  const isAdminUser = userType === "admin";
+
+  if (error && !loading.fetch) {
+    return (
+      <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <Breadcrumbs />
+        <div className="flex flex-col items-center justify-center h-64">
+          <FiAlertCircle className="text-4xl text-red-500 mb-4" />
+          <div className="text-lg text-red-600 dark:text-red-400">{error}</div>
+          <button
+            onClick={fetchDrivers}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <Helmet>
-        <title>
-          {isAdminUser ? "Admin" : "Franchise"} | Driver Verification
-        </title>
+        <title>{isAdminUser ? "Admin" : "Franchise"} | Driver Verification</title>
       </Helmet>
+      <Breadcrumbs />
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -329,9 +435,14 @@ const DriverVerification = () => {
             </div>
             <button
               onClick={fetchDrivers}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={loading.fetch}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <FiArrowLeft size={16} />
+              {loading.fetch ? (
+                <LoadingSpinner size={4} />
+              ) : (
+                <FiRefreshCw size={16} />
+              )}
               <span>Refresh</span>
             </button>
           </div>
@@ -369,17 +480,18 @@ const DriverVerification = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Search drivers by name, phone, Aadhar, or vehicle..."
+                  placeholder="Search drivers by name, phone, email, license, or franchise..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  disabled={loading.fetch}
                 />
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                 <FiFilter size={16} />
                 <span>Filter:</span>
                 <span className="font-medium">
-                  {filteredDrivers.length} drivers
+                  {filteredDrivers.length} of {activeTab === "new" ? stats.new : stats.rejected} drivers
                 </span>
               </div>
             </div>
@@ -392,9 +504,7 @@ const DriverVerification = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm">Total Drivers</p>
-                <p className="text-2xl font-bold mt-1">
-                  {newDrivers.length + rejectedDrivers.length}
-                </p>
+                <p className="text-2xl font-bold mt-1">{stats.total}</p>
               </div>
               <FiUsers className="text-2xl text-blue-200" />
             </div>
@@ -404,7 +514,7 @@ const DriverVerification = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-yellow-100 text-sm">Pending Verification</p>
-                <p className="text-2xl font-bold mt-1">{newDrivers.length}</p>
+                <p className="text-2xl font-bold mt-1">{stats.new}</p>
               </div>
               <FiClock className="text-2xl text-yellow-200" />
             </div>
@@ -414,9 +524,7 @@ const DriverVerification = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-red-100 text-sm">Rejected Drivers</p>
-                <p className="text-2xl font-bold mt-1">
-                  {rejectedDrivers.length}
-                </p>
+                <p className="text-2xl font-bold mt-1">{stats.rejected}</p>
               </div>
               <FiXCircle className="text-2xl text-red-200" />
             </div>
@@ -426,7 +534,7 @@ const DriverVerification = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm">Verified Today</p>
-                <p className="text-2xl font-bold mt-1">0</p>
+                <p className="text-2xl font-bold mt-1">{stats.verifiedToday}</p>
               </div>
               <FiCheckCircle className="text-2xl text-green-200" />
             </div>
@@ -444,12 +552,12 @@ const DriverVerification = () => {
                     ? "text-blue-600 border-blue-600 bg-blue-50 dark:bg-blue-900/20"
                     : "text-gray-500 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
-                onClick={() => setActiveTab("new")}
+                onClick={() => handleTabChange("new")}
               >
                 <FiUser size={16} />
                 <span>New Registrations</span>
                 <span className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs px-2 py-1 rounded-full">
-                  {newDrivers.length}
+                  {stats.new}
                 </span>
               </button>
               <button
@@ -458,12 +566,12 @@ const DriverVerification = () => {
                     ? "text-blue-600 border-blue-600 bg-blue-50 dark:bg-blue-900/20"
                     : "text-gray-500 border-transparent hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
-                onClick={() => setActiveTab("rejected")}
+                onClick={() => handleTabChange("rejected")}
               >
                 <FiXCircle size={16} />
                 <span>Rejected Drivers</span>
                 <span className="bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 text-xs px-2 py-1 rounded-full">
-                  {rejectedDrivers.length}
+                  {stats.rejected}
                 </span>
               </button>
             </div>
@@ -505,12 +613,14 @@ const DriverVerification = () => {
                             <span className="bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 text-xs px-2 py-1 rounded-full">
                               Rejected
                             </span>
+                          ) : user.franchise ? (
+                            <span className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 text-xs px-2 py-1 rounded-full">
+                              {user.franchise.name}
+                            </span>
                           ) : (
-                            user.franchiseId && (
-                              <span className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 text-xs px-2 py-1 rounded-full">
-                                Franchise
-                              </span>
-                            )
+                            <span className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs px-2 py-1 rounded-full">
+                              No Franchise
+                            </span>
                           )}
                         </div>
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
@@ -518,40 +628,27 @@ const DriverVerification = () => {
                             <FiPhone size={14} />
                             <span>{user.phone}</span>
                           </div>
+                          {user.email && (
+                            <div className="flex items-center space-x-1">
+                              <FiMail size={14} />
+                              <span>{user.email}</span>
+                            </div>
+                          )}
+                          {user.license_number && (
+                            <div className="flex items-center space-x-1">
+                              <FiCreditCard size={14} />
+                              <span className="font-mono">
+                                {user.license_number}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex items-center space-x-1">
-                            <FiCreditCard size={14} />
-                            <span className="font-mono">
-                              {user.aadhar_number}
+                            <FiCalendar size={14} />
+                            <span>
+                              {new Date(user.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          {user.vehicle_number && (
-                            <div className="flex items-center space-x-1">
-                              <img
-                                className="h-8 w-8 rounded-full"
-                                src={toto}
-                                alt="Toto"
-                              />
-                              <span className="font-mono">
-                                {user.vehicle_number}
-                              </span>
-                            </div>
-                          )}
-                          {user.franchiseId && (
-                            <div className="flex items-center space-x-1">
-                              <FiBriefcase size={14} />
-                              <span className="text-xs">
-                                Franchise Assigned
-                              </span>
-                            </div>
-                          )}
                         </div>
-                        {!isAdminUser &&
-                          user.franchiseId !== currentFranchiseId && (
-                            <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2">
-                              <span className="font-medium">Note:</span> This
-                              driver is not assigned to your franchise
-                            </p>
-                          )}
                         {activeTab === "rejected" && user.rejectionReason && (
                           <p className="text-xs text-red-500 dark:text-red-400 mt-2">
                             <span className="font-medium">Reason:</span>{" "}
@@ -579,44 +676,39 @@ const DriverVerification = () => {
 
                       {activeTab === "new" ? (
                         <>
-                          {/* Show approve button only if:
-                              1. User is admin OR 
-                              2. User is franchise and driver is assigned to their franchise */}
-                          {(isAdminUser ||
-                            (!isAdminUser &&
-                              user.franchiseId === currentFranchiseId)) && (
-                            <button
-                              onClick={() => handleApprove(user)}
-                              disabled={!!loading[user._id]}
-                              className={`flex items-center justify-center space-x-2 px-4 py-2 ${
-                                isAdminUser
-                                  ? "bg-blue-600 hover:bg-blue-700"
-                                  : "bg-green-600 hover:bg-green-700"
-                              } text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium min-w-[100px]`}
-                            >
-                              {loading[user._id] === "approve" ? (
-                                <LoadingSpinner />
-                              ) : (
-                                <FiCheckCircle size={16} />
-                              )}
-                              <span>Approve</span>
-                            </button>
-                          )}
+                          {/* Check if user is authorized to approve/reject */}
+                          {isAdminUser || (!isAdminUser && user.franchise?._id === getCurrentUserInfo().franchiseId) ? (
+                            <>
+                              <button
+                                onClick={() => handleApprove(user)}
+                                disabled={!!loading[user._id]}
+                                className={`flex items-center justify-center space-x-2 px-4 py-2 ${
+                                  isAdminUser
+                                    ? "bg-blue-600 hover:bg-blue-700"
+                                    : "bg-green-600 hover:bg-green-700"
+                                } text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium min-w-[100px]`}
+                              >
+                                {loading[user._id] === "approve" ? (
+                                  <LoadingSpinner size={4} />
+                                ) : (
+                                  <FiCheckCircle size={16} />
+                                )}
+                                <span>Approve</span>
+                              </button>
 
-                          {/* Show reject button only if:
-                              1. User is admin OR 
-                              2. User is franchise and driver is assigned to their franchise */}
-                          {(isAdminUser ||
-                            (!isAdminUser &&
-                              user.franchiseId === currentFranchiseId)) && (
-                            <button
-                              onClick={() => handleReject(user)}
-                              disabled={!!loading[user._id]}
-                              className="flex items-center justify-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium min-w-[100px]"
-                            >
-                              <FiXCircle size={16} />
-                              <span>Reject</span>
-                            </button>
+                              <button
+                                onClick={() => handleReject(user)}
+                                disabled={!!loading[user._id]}
+                                className="flex items-center justify-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium min-w-[100px]"
+                              >
+                                <FiXCircle size={16} />
+                                <span>Reject</span>
+                              </button>
+                            </>
+                          ) : (
+                            <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 italic">
+                              Not authorized
+                            </div>
                           )}
                         </>
                       ) : (
@@ -635,7 +727,7 @@ const DriverVerification = () => {
                               className="flex items-center justify-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium min-w-[100px]"
                             >
                               {loading[user._id] === "delete" ? (
-                                <LoadingSpinner />
+                                <LoadingSpinner size={4} />
                               ) : (
                                 <FiTrash2 size={16} />
                               )}
@@ -658,8 +750,7 @@ const DriverVerification = () => {
                   />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  No {activeTab === "new" ? "pending" : "rejected"} drivers
-                  found
+                  No {activeTab === "new" ? "pending" : "rejected"} drivers found
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                   {searchTerm
@@ -742,7 +833,7 @@ const DriverVerification = () => {
                   }
                 >
                   {loading[selectedDriverForReject._id] === "reject" ? (
-                    <LoadingSpinner />
+                    <LoadingSpinner size={4} />
                   ) : (
                     <FiXCircle size={16} />
                   )}
@@ -763,12 +854,12 @@ const DriverVerification = () => {
                 <div className="flex items-center space-x-3">
                   <div
                     className={`p-2 ${
-                      selectedUserData.franchiseId
+                      selectedUserData.franchise
                         ? "bg-green-100 dark:bg-green-900"
                         : "bg-blue-100 dark:bg-blue-900"
                     } rounded-lg`}
                   >
-                    {selectedUserData.franchiseId ? (
+                    {selectedUserData.franchise ? (
                       <FiBriefcase
                         className="text-green-600 dark:text-green-400"
                         size={24}
@@ -798,124 +889,298 @@ const DriverVerification = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personal Information */}
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <FiUser
-                      className="text-gray-600 dark:text-gray-400 flex-shrink-0"
-                      size={18}
-                    />
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                        Full Name
-                      </label>
-                      <p className="text-gray-900 dark:text-white font-semibold">
-                        {selectedUserData.name}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <FiPhone
-                      className="text-gray-600 dark:text-gray-400 flex-shrink-0"
-                      size={18}
-                    />
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                        Phone Number
-                      </label>
-                      <p className="text-gray-900 dark:text-white">
-                        {selectedUserData.phone}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <FiCreditCard
-                      className="text-gray-600 dark:text-gray-400 flex-shrink-0"
-                      size={18}
-                    />
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                        Aadhar Number
-                      </label>
-                      <p className="text-gray-900 dark:text-white font-mono">
-                        {selectedUserData.aadhar_number}
-                      </p>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Personal Information
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <FiUser className="text-gray-400 mr-3" size={18} />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {selectedUserData.name}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Full Name
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <FiPhone className="text-gray-400 mr-3" size={18} />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {selectedUserData.phone}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Phone Number
+                          </p>
+                        </div>
+                      </div>
+                      {selectedUserData.email && (
+                        <div className="flex items-center">
+                          <FiMail className="text-gray-400 mr-3" size={18} />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {selectedUserData.email}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Email Address
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedUserData.pin_code && (
+                        <div className="flex items-center">
+                          <FiMapPin className="text-gray-400 mr-3" size={18} />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {selectedUserData.pin_code}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              PIN Code
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
+                {/* Driver Details */}
                 <div className="space-y-4">
-                  {selectedUserData.vehicle_number && (
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src={toto}
-                        alt="Toto"
-                      />
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                          Toto Number
-                        </label>
-                        <p className="text-gray-900 dark:text-white font-mono">
-                          {selectedUserData.vehicle_number}
-                        </p>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Driver Details
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <FiCreditCard className="text-gray-400 mr-3" size={18} />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {selectedUserData.license_number}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            License Number
+                          </p>
+                        </div>
+                      </div>
+                      {selectedUserData.aadhar_number && (
+                        <div className="flex items-center">
+                          <FiCreditCard className="text-gray-400 mr-3" size={18} />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {selectedUserData.aadhar_number}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Aadhar Number
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center">
+                        <FiCalendar className="text-gray-400 mr-3" size={18} />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {new Date(selectedUserData.createdAt).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Registration Date
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="mr-3">
+                          <span className={`inline-block w-3 h-3 rounded-full ${selectedUserData.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${selectedUserData.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {selectedUserData.isActive ? 'Active' : 'Inactive'}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Status
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  )}
+                  </div>
+                </div>
 
-                  {selectedUserData.franchiseId && (
-                    <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <FiBriefcase
-                        className="text-green-600 dark:text-green-400 flex-shrink-0"
-                        size={18}
-                      />
-                      <div>
-                        <label className="block text-xs font-medium text-green-600 dark:text-green-400 mb-1">
-                          Franchise Assigned
-                        </label>
-                        <p className="text-green-700 dark:text-green-300">
-                          Driver is assigned to a franchise
-                        </p>
+                {/* Address Information */}
+                {(selectedUserData.village || selectedUserData.district || selectedUserData.landmark) && (
+                  <div className="md:col-span-2 space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                        Address Information
+                      </h4>
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {selectedUserData.village && (
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Village</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {selectedUserData.village}
+                              </p>
+                            </div>
+                          )}
+                          {selectedUserData.district && (
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">District</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {selectedUserData.district}
+                              </p>
+                            </div>
+                          )}
+                          {selectedUserData.police_station && (
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Police Station</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {selectedUserData.police_station}
+                              </p>
+                            </div>
+                          )}
+                          {selectedUserData.post_office && (
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Post Office</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {selectedUserData.post_office}
+                              </p>
+                            </div>
+                          )}
+                          {selectedUserData.landmark && (
+                            <div className="md:col-span-2">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Landmark</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {selectedUserData.landmark}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
-                      Driver Photo
-                    </label>
-                    <img
-                      src={
-                        selectedUserData.driver_photo || "/default-avatar.png"
-                      }
-                      alt={selectedUserData.name}
-                      className="h-32 w-32 rounded-lg object-cover border border-gray-300 dark:border-gray-600 mx-auto"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/128?text=Driver";
-                      }}
-                    />
+                {/* Franchise Information */}
+                {selectedUserData.franchise && (
+                  <div className="md:col-span-2 space-y-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
+                        Assigned Franchise
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Franchise Name
+                          </p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {selectedUserData.franchise.name}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Phone
+                          </p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {selectedUserData.franchise.phone}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Email
+                          </p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {selectedUserData.franchise.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Photos Section */}
+                <div className="md:col-span-2 space-y-4">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Photos
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {selectedUserData.driver_photo && (
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                          Driver Photo
+                        </p>
+                        <img
+                          src={selectedUserData.driver_photo}
+                          alt="Driver"
+                          className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/300x200?text=Driver+Photo";
+                          }}
+                        />
+                      </div>
+                    )}
+                    {selectedUserData.car_photo && selectedUserData.car_photo.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                          Car Photos ({selectedUserData.car_photo.length})
+                        </p>
+                        <div className="space-y-2">
+                          {selectedUserData.car_photo.slice(0, 2).map((photo, index) => (
+                            <img
+                              key={index}
+                              src={photo}
+                              alt={`Car ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/300x150?text=Car+Photo";
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(selectedUserData.aadhar_front_photo || selectedUserData.aadhar_back_photo) && (
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                          Aadhar Documents
+                        </p>
+                        <div className="space-y-2">
+                          {selectedUserData.aadhar_front_photo && (
+                            <img
+                              src={selectedUserData.aadhar_front_photo}
+                              alt="Aadhar Front"
+                              className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/300x150?text=Aadhar+Front";
+                              }}
+                            />
+                          )}
+                          {selectedUserData.aadhar_back_photo && (
+                            <img
+                              src={selectedUserData.aadhar_back_photo}
+                              alt="Aadhar Back"
+                              className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/300x150?text=Aadhar+Back";
+                              }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {activeTab === "rejected" && selectedUserData.rejectionReason && (
-                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FiXCircle
-                      className="text-red-600 dark:text-red-400"
-                      size={16}
-                    />
-                    <label className="block text-sm font-medium text-red-600 dark:text-red-400">
-                      Rejection Reason
-                    </label>
-                  </div>
-                  <p className="text-red-700 dark:text-red-300">
-                    {selectedUserData.rejectionReason}
-                  </p>
-                </div>
-              )}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+                <button
+                  onClick={() => setToggleModal(false)}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

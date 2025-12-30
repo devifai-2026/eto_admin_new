@@ -14,7 +14,7 @@ const MapComponent = ({ socket, rideId, adminId }) => {
   const [error, setError] = useState(null);
 
   // Environment variable theke API key neoa
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const apiKey = "AIzaSyADoCI2hyTYNI3jXfG4jRZzVu0qdMMEH4Q";
 
   useEffect(() => {
     if (!socket) {

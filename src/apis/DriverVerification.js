@@ -3,9 +3,9 @@ import axiosInstance from "../utils/axiosInstance";
 
 export const driverVerificationAPI = {
   // Get new registered drivers
-  getNewDrivers: async () => {
+  getNewDrivers: async (params = {}) => {
     try {
-      const response = await axiosInstance.get("/driver/newRegistered");
+      const response = await axiosInstance.get("/driver/newRegistered", { params });
       return response.data;
     } catch (error) {
       console.error("Error fetching new drivers:", error);
@@ -13,10 +13,10 @@ export const driverVerificationAPI = {
     }
   },
 
-  // Get rejected drivers
-  getRejectedDrivers: async () => {
+   // Get rejected drivers with admin/franchise access control
+  getRejectedDrivers: async (params = {}) => {
     try {
-      const response = await axiosInstance.get("/driver/rejected");
+      const response = await axiosInstance.get("/driver/rejected", { params });
       return response.data;
     } catch (error) {
       console.error("Error fetching rejected drivers:", error);
@@ -24,7 +24,7 @@ export const driverVerificationAPI = {
     }
   },
 
-  // Approve driver 
+  // Approve driver with franchise/admin control
   approveDriver: async (requestBody) => {
     try {
       const response = await axiosInstance.patch(
@@ -38,7 +38,7 @@ export const driverVerificationAPI = {
     }
   },
 
-  // Reject driver
+  // Reject driver with franchise/admin control
   rejectDriver: async (requestBody) => {
     try {
       const response = await axiosInstance.patch("/driver/reject", requestBody);

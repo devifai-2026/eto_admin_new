@@ -73,7 +73,7 @@ export const rideHistoryAPI = {
       return "Invalid coordinates";
     }
 
-    const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    const GOOGLE_API_KEY = "AIzaSyADoCI2hyTYNI3jXfG4jRZzVu0qdMMEH4Q";
 
     if (!GOOGLE_API_KEY) {
       return `Lat: ${coordinates[1]}, Lng: ${coordinates[0]}`;

@@ -206,7 +206,7 @@ const Layout = () => {
             <Route
               path="/driver-verification"
               element={
-                <ProtectedRoute allowedUserTypes={["admin"]}>
+                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <DriverVerification />
                 </ProtectedRoute>
               }
