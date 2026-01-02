@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { allDriverAPI } from '../../apis/AllDriver';
 import Breadcrumbs from '../Breadcrumbs/BreadCrumbs';
@@ -14,9 +14,12 @@ import {
   FiChevronLeft,
   FiCreditCard,
   FiCalendar,
-  FiSearch
+  FiSearch,
+  FiDownload
 } from 'react-icons/fi';
 import { Helmet } from 'react-helmet';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const AllDriverDetails = () => {
   const { driverId } = useParams();
@@ -30,6 +33,8 @@ const AllDriverDetails = () => {
   });
   const [rangeData, setRangeData] = useState(null);
   const [loadingRange, setLoadingRange] = useState(false);
+  const [etoCard, setEtoCard] = useState(null);
+  const etoCardRef = useRef(null);
 
   useEffect(() => {
     const fetchDriverDetails = async () => {
@@ -40,7 +45,8 @@ const AllDriverDetails = () => {
         console.log('Fetched driver data:', driverData);
         
         if (driverData) {
-          setDriver(driverData.data);
+          setDriver(driverData.data.driver);
+          setEtoCard(driverData.data.etoCard);
         } else {
           setError('Driver not found');
         }
@@ -62,7 +68,6 @@ const AllDriverDetails = () => {
 
     try {
       setLoadingRange(true);
-      // Mock API call - replace with actual API endpoint
       const rangeDataResponse = await allDriverAPI.getDriverRangeData(driverId, dateRange);
       setRangeData(rangeDataResponse);
     } catch (err) {
@@ -82,6 +87,34 @@ const AllDriverDetails = () => {
   const clearDateRange = () => {
     setDateRange({ from: '', to: '' });
     setRangeData(null);
+  };
+
+  const downloadEtoCardPDF = async () => {
+    if (!etoCardRef.current) return;
+
+    try {
+      const canvas = await html2canvas(etoCardRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: [86, 54] // Standard ID card size
+      });
+
+      const imgWidth = 86;
+      const imgHeight = 54;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`ETO-Card-${etoCard.eto_id_num || driver?.name}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to download ETO Card. Please try again.');
+    }
   };
 
   if (loading) {
@@ -187,6 +220,173 @@ const AllDriverDetails = () => {
         </div>
       </div>
 
+      {/* ETO Card Preview Section */}
+      {etoCard && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <FiCreditCard className="text-blue-600 dark:text-blue-400 text-xl" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                ETO Card
+              </h3>
+              <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                Active
+              </span>
+            </div>
+            <button
+              onClick={downloadEtoCardPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <FiDownload className="w-4 h-4" />
+              Download PDF
+            </button>
+          </div>
+
+          {/* ETO Card Preview */}
+          <div className="flex justify-center">
+            <div 
+              ref={etoCardRef}
+              className="relative w-[340px] h-[220px] bg-white border-4 border-black rounded-lg overflow-hidden"
+            >
+              {/* Front Side */}
+              <div className="absolute inset-0">
+                {/* Top Banner */}
+                <div className="h-[30%] bg-gradient-to-r from-blue-600 to-blue-800 relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white text-lg font-bold">ETO DRIVER ID CARD</span>
+                  </div>
+                  
+                  {/* Profile Image Container */}
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-24 h-24 rounded-full bg-white p-1">
+                    <img
+                      src={driver.driver_photo}
+                      alt="Driver"
+                      className="w-full h-full rounded-full object-cover border-2 border-blue-600"
+                      onError={(e) => {
+                        e.target.src = '/default-avatar.png';
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Driver Name */}
+                <div className="mt-16 text-center">
+                  <h3 className="text-2xl font-bold text-gray-900">{driver.name}</h3>
+                  <div className="mt-2 px-4 py-1 bg-blue-100 inline-block rounded-full">
+                    <span className="text-blue-800 font-semibold">
+                      ID: {etoCard.eto_id_num}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Address Details */}
+                <div className="mt-4 px-6">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="text-gray-600 font-medium">Village:</div>
+                    <div className="text-gray-900">{driver.village || 'N/A'}</div>
+                    
+                    <div className="text-gray-600 font-medium">Post Office:</div>
+                    <div className="text-gray-900">{driver.post_office || 'N/A'}</div>
+                    
+                    <div className="text-gray-600 font-medium">Police Station:</div>
+                    <div className="text-gray-900">{driver.police_station || 'N/A'}</div>
+                    
+                    <div className="text-gray-600 font-medium">District:</div>
+                    <div className="text-gray-900">{driver.district || 'N/A'}</div>
+                    
+                    <div className="text-gray-600 font-medium">PIN Code:</div>
+                    <div className="text-gray-900">{driver.pin_code || 'N/A'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Back Side - Will be shown when flipped */}
+              <div className="absolute inset-0 transform rotate-y-180 hidden">
+                {/* Back Side Design - Similar to mobile app */}
+                <div className="h-[30%] bg-gradient-to-r from-green-600 to-green-800">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white text-lg font-bold">ETO CONTACT INFO</span>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-center">
+                  <div className="mb-4">
+                    <div className="text-lg font-bold text-gray-900">Helpline Number</div>
+                    <div className="text-2xl font-bold text-blue-700">{etoCard.helpLine_num}</div>
+                  </div>
+
+                  <div className="mt-4 px-4">
+                    <div className="font-bold text-gray-900 mb-2">Terms & Conditions</div>
+                    <div className="text-xs text-gray-600 text-left">
+                      By using our ride-booking app, you agree to follow all policies. 
+                      Riders and drivers must act respectfully. The app connects users 
+                      with drivers but is not liable for ride quality or any incidents...
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Flip Indicator */}
+              <div className="absolute bottom-2 right-2">
+                <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  Flip for contact info
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card Details */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">ETO ID:</span>
+                <span className="text-gray-900 dark:text-white font-semibold">{etoCard.eto_id_num}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Helpline Number:</span>
+                <a 
+                  href={`tel:${etoCard.helpLine_num}`}
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {etoCard.helpLine_num}
+                </a>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Joined At:</span>
+                <span className="text-gray-900 dark:text-white">
+                  {new Date(etoCard.createdAt).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Driver License:</span>
+                <span className="text-gray-900 dark:text-white">{driver.license_number || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Toto Photos:</span>
+                <span className="text-gray-900 dark:text-white">{driver.car_photo?.length || 0} photos</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Last Updated:</span>
+                <span className="text-gray-900 dark:text-white">
+                  {new Date(etoCard.updatedAt).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Personal Information */}
@@ -207,15 +407,9 @@ const AllDriverDetails = () => {
               <span className="text-gray-900 dark:text-white">{driver.phone || '-'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Aadhar:</span>
-              <span className="text-gray-900 dark:text-white">{driver.aadhar_number || '-'}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">License Number:</span>
+              <span className="text-gray-900 dark:text-white">{driver.license_number || '-'}</span>
             </div>
-            {driver.license_number && (
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">License:</span>
-                <span className="text-gray-900 dark:text-white">{driver.license_number}</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -252,6 +446,18 @@ const AllDriverDetails = () => {
                 <span className="text-gray-900 dark:text-white">{driver.pin_code}</span>
               </div>
             )}
+            {driver.landmark && (
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Landmark:</span>
+                <span className="text-gray-900 dark:text-white">{driver.landmark}</span>
+              </div>
+            )}
+            {driver.post_office && (
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Post Office:</span>
+                <span className="text-gray-900 dark:text-white">{driver.post_office}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -270,7 +476,7 @@ const AllDriverDetails = () => {
                   GPS Coordinates:
                 </span>
                 <span className="text-gray-900 dark:text-white">
-                  {driver.current_location.coordinates[0]}, {driver.current_location.coordinates[1]}
+                  {driver.current_location.coordinates[0].toFixed(6)}, {driver.current_location.coordinates[1].toFixed(6)}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -280,7 +486,7 @@ const AllDriverDetails = () => {
                 <span className="text-gray-900 dark:text-white text-sm">
                   <LocationName
                     coordinates={driver.current_location.coordinates}
-                    fallbackText="Location not available"
+                    fallbackText="Fetching location..."
                   />
                 </span>
               </div>
@@ -297,195 +503,60 @@ const AllDriverDetails = () => {
             </h3>
           </div>
           <div className="space-y-4">
-            {driver.login_time && driver.logout_time && (
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Working Hours:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {driver.login_time} - {driver.logout_time}
-                </span>
-              </div>
-            )}
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-600 dark:text-gray-300">Status:</span>
+              <span className={`font-semibold ${driver.is_on_ride ? 'text-red-600' : 'text-green-600'}`}>
+                {driver.is_on_ride ? 'On Ride' : 'Available'}
+              </span>
+            </div>
             <div className="flex justify-between">
               <span className="font-medium text-gray-600 dark:text-gray-300">Total Rides:</span>
               <span className="text-gray-900 dark:text-white">{driver.total_complete_rides || 0}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium text-gray-600 dark:text-gray-300">Total Earnings:</span>
-              <span className="text-gray-900 dark:text-white font-semibold">₹{(driver.total_earning || 0).toLocaleString()}</span>
+              <span className="text-gray-900 dark:text-white font-semibold">₹{(driver.total_earning || 0).toLocaleString('en-IN')}</span>
             </div>
-            {driver.cash_wallet !== undefined && (
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Cash Wallet:</span>
-                <span className="text-gray-900 dark:text-white">₹{(driver.cash_wallet || 0).toLocaleString()}</span>
-              </div>
-            )}
-            {driver.online_wallet !== undefined && (
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Online Wallet:</span>
-                <span className="text-gray-900 dark:text-white">₹{(driver.online_wallet || 0).toLocaleString()}</span>
-              </div>
-            )}
-            {driver.due_wallet !== undefined && (
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Due Wallet:</span>
-                <span className="text-gray-900 dark:text-white">₹{(driver.due_wallet || 0).toLocaleString()}</span>
-              </div>
-            )}
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-600 dark:text-gray-300">Cash Wallet:</span>
+              <span className="text-gray-900 dark:text-white">₹{(driver.cash_wallet || 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-600 dark:text-gray-300">Online Wallet:</span>
+              <span className="text-gray-900 dark:text-white">₹{(driver.online_wallet || 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-600 dark:text-gray-300">Due Wallet:</span>
+              <span className="text-gray-900 dark:text-white">₹{(driver.due_wallet || 0).toLocaleString('en-IN')}</span>
+            </div>
           </div>
         </div>
-
-        {/* Date Range Work Information */}
-        {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3 mb-4">
-            <FiCalendar className="text-blue-600 dark:text-blue-400 text-xl" />
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Work Information (Date Range)
-            </h3>
-          </div>
-          
-    
-          <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  From Date
-                </label>
-                <input
-                  type="date"
-                  value={dateRange.from}
-                  onChange={(e) => handleDateChange('from', e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  To Date
-                </label>
-                <input
-                  type="date"
-                  value={dateRange.to}
-                  onChange={(e) => handleDateChange('to', e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={handleDateRangeSearch}
-                disabled={!dateRange.from || !dateRange.to || loadingRange}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <FiSearch size={16} />
-                {loadingRange ? 'Searching...' : 'Search'}
-              </button>
-              
-              <button
-                onClick={clearDateRange}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-    
-          <div className="space-y-4">
-            {loadingRange ? (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">Loading range data...</p>
-              </div>
-            ) : rangeData ? (
-              <>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Rides in Range:</span>
-                  <span className="text-gray-900 dark:text-white">{rangeData.rides || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Earnings in Range:</span>
-                  <span className="text-gray-900 dark:text-white font-semibold">₹{(rangeData.earnings || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Cash Wallet:</span>
-                  <span className="text-gray-900 dark:text-white">₹{(rangeData.cash_wallet || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Online Wallet:</span>
-                  <span className="text-gray-900 dark:text-white">₹{(rangeData.online_wallet || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600 dark:text-gray-300">Due Wallet:</span>
-                  <span className="text-gray-900 dark:text-white">₹{(rangeData.due_wallet || 0).toLocaleString()}</span>
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-4">
-                <FiCalendar className="mx-auto text-gray-400 mb-2" size={24} />
-                <p className="text-gray-500 dark:text-gray-400">
-                  Select a date range to view work information
-                </p>
-              </div>
-            )}
-          </div>
-        </div> */}
-
-        {/* ETO Card Information */}
-        {driver.etoCard && (
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3 mb-4">
-              <FiCreditCard className="text-blue-600 dark:text-blue-400 text-xl" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                ETO Card Information
-              </h3>
-            </div>
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">ETO ID:</span>
-                <span className="text-gray-900 dark:text-white">{driver.etoCard.eto_id_num || '-'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Helpline:</span>
-                <span className="text-gray-900 dark:text-white">{driver.etoCard.helpLine_num || '-'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Driver Toto Licence:</span>
-                <span className="text-gray-900 dark:text-white">{driver.etoCard.driver_toto_licence || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Toto Licence:</span>
-                <span className="text-gray-900 dark:text-white">{driver.etoCard.toto_licence || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Joined At:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {driver.etoCard.createdAt ? new Date(driver.etoCard.createdAt).toLocaleDateString() : '-'}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Documents Section */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-        <div className="flex items-center gap-3 mb-6">
-          <FiFileText className="text-blue-600 dark:text-blue-400 text-xl" />
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Documents
-          </h3>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <FiFileText className="text-blue-600 dark:text-blue-400 text-xl" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Documents
+            </h3>
+          </div>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {driver.car_photo?.length || 0} photos • {driver.aadhar_front_photo ? 2 : 0} Aadhar
+          </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {driver.aadhar_front_photo && (
             <DocumentCard
               url={driver.aadhar_front_photo}
-              title="Document Front"
+              title="Aadhar Front"
             />
           )}
           {driver.aadhar_back_photo && (
             <DocumentCard
               url={driver.aadhar_back_photo}
-              title="Document Back"
+              title="Aadhar Back"
             />
           )}
           {driver.car_photo && Array.isArray(driver.car_photo) && driver.car_photo.map((photo, index) => (
@@ -499,14 +570,23 @@ const AllDriverDetails = () => {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-4">
         <button
           onClick={() => navigate('/all-drivers')}
-          className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          className="flex items-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           <FiChevronLeft className="mr-2" />
           Back to Drivers
         </button>
+        {etoCard && (
+          <button
+            onClick={downloadEtoCardPDF}
+            className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <FiDownload className="mr-2" />
+            Download ETO Card
+          </button>
+        )}
       </div>
     </div>
   );
