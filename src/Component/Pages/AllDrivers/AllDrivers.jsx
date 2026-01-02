@@ -121,16 +121,11 @@ const AllDrivers = () => {
   }, [fetchDrivers]);
 
   // Apply filters with debouncing - CLIENT SIDE FILTERING
-  // Note: This is now mainly for local UI filtering as API already handles filtering
   useEffect(() => {
     const timerId = setTimeout(() => {
-      // Only apply client-side filtering if we have a search term
-      // For activeFilter, we're already passing to API
       if (searchTerm.trim() === "") {
-        // If no search term, just use the original drivers
         setFilteredDrivers(drivers);
       } else {
-        // Apply local search filter on already fetched data
         applyLocalFilters();
       }
     }, 500);
@@ -159,38 +154,54 @@ const AllDrivers = () => {
     }
 
     setFilteredDrivers(result);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [searchTerm, drivers]);
 
   // Handle search or filter change - FETCH FROM API
   useEffect(() => {
-    // When search term changes significantly or active filter changes, fetch from API
     const timerId = setTimeout(() => {
       fetchDrivers();
-    }, 800); // Slightly longer debounce for API calls
+    }, 800);
 
     return () => {
       clearTimeout(timerId);
     };
   }, [searchTerm, activeFilter]);
 
-  // Handle driver deletion
-  const handleDeleteDriver = async (driverId) => {
+  // Handle driver deletion - UPDATED TO USE CORRECT ID
+  const handleDeleteDriver = async (driver) => {
+    // Extract the ID from the driver object
+    const driverId = driver?.id;
+    
+    if (!driverId) {
+      console.error("Driver ID not found:", driver);
+      alert("Invalid driver data. Cannot delete.");
+      return;
+    }
+
+    // Get driver name for confirmation message
+    const driverName = driver?.name || "this driver";
+    
     if (
       !window.confirm(
-        "Are you sure you want to delete this driver? This action cannot be undone."
+        `Are you sure you want to delete driver "${driverName}"? This action cannot be undone.`
       )
     ) {
       return;
     }
 
     try {
+      console.log("Deleting driver with ID:", driverId);
       await allDriverAPI.deleteDriver(driverId);
+      
+      // Show success message
+      alert(`Driver "${driverName}" has been deleted successfully.`);
+      
       // Refetch data after deletion
       fetchDrivers();
     } catch (error) {
-      alert("Failed to delete driver. Please try again.");
-      console.error(error);
+      console.error("Error deleting driver:", error);
+      alert(error.message || "Failed to delete driver. Please try again.");
     }
   };
 
@@ -202,7 +213,6 @@ const AllDrivers = () => {
   // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    // Page change will trigger fetchDrivers via useEffect dependency
   };
 
   if (error && !loading) {
@@ -251,9 +261,9 @@ const AllDrivers = () => {
           filteredDrivers={filteredDrivers}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
-          setCurrentPage={handlePageChange} // Updated to use handler
+          setCurrentPage={handlePageChange}
           viewDriverDetails={viewDriverDetails}
-          handleDeleteDriver={handleDeleteDriver}
+          handleDeleteDriver={handleDeleteDriver} // Pass the handler
           loading={loading}
         />
       </div>

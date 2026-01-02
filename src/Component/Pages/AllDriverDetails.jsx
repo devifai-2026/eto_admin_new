@@ -335,7 +335,7 @@ const AllDriverDetails = () => {
         </div>
 
         {/* Date Range Work Information */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+        {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-4">
             <FiCalendar className="text-blue-600 dark:text-blue-400 text-xl" />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -343,7 +343,7 @@ const AllDriverDetails = () => {
             </h3>
           </div>
           
-          {/* Date Range Picker */}
+    
           <div className="space-y-4 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -389,7 +389,7 @@ const AllDriverDetails = () => {
             </div>
           </div>
 
-          {/* Range Data Display */}
+    
           <div className="space-y-4">
             {loadingRange ? (
               <div className="text-center py-4">
@@ -428,7 +428,7 @@ const AllDriverDetails = () => {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* ETO Card Information */}
         {driver.etoCard && (

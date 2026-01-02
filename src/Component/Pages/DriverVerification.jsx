@@ -1099,78 +1099,106 @@ const DriverVerification = () => {
                   </div>
                 )}
 
-                {/* Photos Section */}
-                <div className="md:col-span-2 space-y-4">
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Photos
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {selectedUserData.driver_photo && (
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                          Driver Photo
-                        </p>
-                        <img
-                          src={selectedUserData.driver_photo}
-                          alt="Driver"
-                          className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                          onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/300x200?text=Driver+Photo";
-                          }}
-                        />
-                      </div>
-                    )}
-                    {selectedUserData.car_photo && selectedUserData.car_photo.length > 0 && (
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                          Car Photos ({selectedUserData.car_photo.length})
-                        </p>
-                        <div className="space-y-2">
-                          {selectedUserData.car_photo.slice(0, 2).map((photo, index) => (
-                            <img
-                              key={index}
-                              src={photo}
-                              alt={`Car ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                              onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/300x150?text=Car+Photo";
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {(selectedUserData.aadhar_front_photo || selectedUserData.aadhar_back_photo) && (
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                          Aadhar Documents
-                        </p>
-                        <div className="space-y-2">
-                          {selectedUserData.aadhar_front_photo && (
-                            <img
-                              src={selectedUserData.aadhar_front_photo}
-                              alt="Aadhar Front"
-                              className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                              onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/300x150?text=Aadhar+Front";
-                              }}
-                            />
-                          )}
-                          {selectedUserData.aadhar_back_photo && (
-                            <img
-                              src={selectedUserData.aadhar_back_photo}
-                              alt="Aadhar Back"
-                              className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                              onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/300x150?text=Aadhar+Back";
-                              }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+              {/* Photos Section */}
+<div className="md:col-span-2 space-y-4">
+  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+    Photos
+  </h4>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {selectedUserData.driver_photo && (
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+          Driver Photo
+        </p>
+        <a
+          href={selectedUserData.driver_photo}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          <img
+            src={selectedUserData.driver_photo}
+            alt="Driver"
+            className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/300x200?text=Driver+Photo";
+            }}
+          />
+        </a>
+      </div>
+    )}
+    {selectedUserData.car_photo && selectedUserData.car_photo.length > 0 && (
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+          Car Photos ({selectedUserData.car_photo.length})
+        </p>
+        <div className="space-y-2">
+          {selectedUserData.car_photo.slice(0, 2).map((photo, index) => (
+            <a
+              key={index}
+              href={photo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <img
+                src={photo}
+                alt={`Car ${index + 1}`}
+                className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/300x150?text=Car+Photo";
+                }}
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+    {(selectedUserData.aadhar_front_photo || selectedUserData.aadhar_back_photo) && (
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+          Aadhar Documents
+        </p>
+        <div className="space-y-2">
+          {selectedUserData.aadhar_front_photo && (
+            <a
+              href={selectedUserData.aadhar_front_photo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <img
+                src={selectedUserData.aadhar_front_photo}
+                alt="Aadhar Front"
+                className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/300x150?text=Aadhar+Front";
+                }}
+              />
+            </a>
+          )}
+          {selectedUserData.aadhar_back_photo && (
+            <a
+              href={selectedUserData.aadhar_back_photo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <img
+                src={selectedUserData.aadhar_back_photo}
+                alt="Aadhar Back"
+                className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 transition-opacity"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/300x150?text=Aadhar+Back";
+                }}
+              />
+            </a>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">

@@ -43,7 +43,7 @@ const StatsCards = ({ requests, statistics, getStatusCount, getTotalAmount, user
               ₹{getTotalAmount().toLocaleString()}
             </p>
           </div>
-          <FiDollarSign className="text-xl sm:text-3xl text-purple-200" />
+          <FaIndianRupeeSign className="text-xl sm:text-3xl text-purple-200" />
         </div>
       </div>
     </div>

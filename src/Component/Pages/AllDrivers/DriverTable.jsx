@@ -24,7 +24,7 @@ const DriverTable = ({
     startIndex + itemsPerPage
   );
 
-  // Generate page numbers (previous code)
+  // Generate page numbers
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -60,6 +60,92 @@ const DriverTable = ({
     return pages;
   };
 
+  // Function to get status badge styling based on status
+  const getStatusBadge = (status) => {
+    const statusLower = (status || "").toLowerCase();
+    
+    switch(statusLower) {
+      case "active":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "inactive":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "pending":
+      case "pending_approval":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "blocked":
+      case "suspended":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+      case "on_ride":
+      case "busy":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "available":
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200";
+      case "offline":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+    }
+  };
+
+  // Function to get status dot color
+  const getStatusDotColor = (status) => {
+    const statusLower = (status || "").toLowerCase();
+    
+    switch(statusLower) {
+      case "active":
+      case "available":
+        return "bg-green-500";
+      case "inactive":
+        return "bg-red-500";
+      case "pending":
+      case "pending_approval":
+        return "bg-yellow-500";
+      case "blocked":
+      case "suspended":
+        return "bg-gray-500";
+      case "on_ride":
+      case "busy":
+        return "bg-blue-500";
+      case "offline":
+        return "bg-gray-400";
+      default:
+        return "bg-gray-400";
+    }
+  };
+
+  // Function to format status text for display
+  const formatStatusText = (status) => {
+    if (!status) return "Unknown";
+    
+    const statusLower = status.toLowerCase();
+    
+    switch(statusLower) {
+      case "active":
+        return "Active";
+      case "inactive":
+        return "Inactive";
+      case "pending":
+      case "pending_approval":
+        return "Pending";
+      case "blocked":
+      case "suspended":
+        return "Blocked";
+      case "on_ride":
+      case "busy":
+        return "On Ride";
+      case "available":
+        return "Available";
+      case "offline":
+        return "Offline";
+      default:
+        // Capitalize first letter of each word
+        return status
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
@@ -93,6 +179,9 @@ const DriverTable = ({
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
           Driver List ({filteredDrivers.length} drivers)
         </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Showing {currentDrivers.length} drivers on this page
+        </p>
       </div>
 
       {/* Mobile Cards */}
@@ -116,23 +205,17 @@ const DriverTable = ({
                     {driver.name}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Joined {new Date(driver.createdAt).toLocaleDateString()}
+                    Joined {driver.joinedDate || "N/A"}
                   </div>
                 </div>
               </div>
               <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  driver.isActive
-                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                }`}
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(driver.status)}`}
               >
                 <span
-                  className={`w-2 h-2 rounded-full mr-1 ${
-                    driver.isActive ? "bg-green-500" : "bg-red-500"
-                  }`}
+                  className={`w-2 h-2 rounded-full mr-1 ${getStatusDotColor(driver.status)}`}
                 ></span>
-                {driver.isActive ? "Active" : "Inactive"}
+                {formatStatusText(driver.status)}
               </span>
             </div>
 
@@ -143,7 +226,7 @@ const DriverTable = ({
                   Phone
                 </div>
                 <div className="text-gray-900 dark:text-white">
-                  {driver.phone || "-"}
+                  {driver.contact?.phone || "-"}
                 </div>
               </div>
               <div>
@@ -151,7 +234,7 @@ const DriverTable = ({
                   ETO ID
                 </div>
                 <div className="text-gray-900 dark:text-white">
-                  {driver.etoCard?.eto_id_num || "-"}
+                  {driver.etoIdNumber || "-"}
                 </div>
               </div>
             </div>
@@ -163,7 +246,7 @@ const DriverTable = ({
                   Earnings
                 </div>
                 <div className="font-semibold text-green-600 dark:text-green-400">
-                  ₹{driver.total_earning?.toLocaleString() || "0"}
+                  ₹{driver.totalEarnings?.toLocaleString() || "0"}
                 </div>
               </div>
               <div>
@@ -171,7 +254,7 @@ const DriverTable = ({
                   Total Rides
                 </div>
                 <div className="text-gray-900 dark:text-white">
-                  {driver.total_complete_rides || "0"}
+                  {driver.totalRides || "0"}
                 </div>
               </div>
             </div>
@@ -179,20 +262,14 @@ const DriverTable = ({
             {/* Actions */}
             <div className="flex space-x-2">
               <button
-                onClick={() => viewDriverDetails(driver.userId)}
+                onClick={() => viewDriverDetails(driver.userId || driver.id)}
                 className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
               >
                 <FiEye size={14} className="mr-1" />
                 View
               </button>
               <button
-                onClick={() =>
-                  handleDeleteDriver(
-                    typeof driver._id === "object" && "$oid" in driver._id
-                      ? driver._id.$oid
-                      : driver._id
-                  )
-                }
+                onClick={() => handleDeleteDriver(driver)} // Pass full driver object
                 className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-sm"
               >
                 <FiTrash2 size={14} className="mr-1" />
@@ -252,8 +329,13 @@ const DriverTable = ({
                         {driver.name}
                       </div>
                       <div className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">
-                        Joined {new Date(driver.createdAt).toLocaleDateString()}
+                        Joined {driver.joinedDate || "N/A"}
                       </div>
+                      {driver.status && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Status: <span className="font-medium">{formatStatusText(driver.status)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -261,10 +343,10 @@ const DriverTable = ({
                 {/* Contact */}
                 <td className="px-4 lg:px-6 py-4">
                   <div className="text-sm text-gray-900 dark:text-white">
-                    {driver.phone || "-"}
+                    {driver.contact?.phone || "-"}
                   </div>
                   <div className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">
-                    {driver.email || "-"}
+                    {driver.contact?.email || "-"}
                   </div>
                 </td>
 
@@ -272,39 +354,40 @@ const DriverTable = ({
                 <td className="px-4 lg:px-6 py-4">
                   <div className="flex items-center text-sm text-gray-900 dark:text-white">
                     <FiCreditCard className="mr-2 text-gray-400" />
-                    {driver.etoCard?.eto_id_num || "-"}
+                    {driver.etoIdNumber || "-"}
                   </div>
                 </td>
 
                 {/* Status */}
                 <td className="px-4 lg:px-6 py-4 text-center">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      driver.isActive
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                    }`}
-                  >
+                  <div className="flex flex-col items-center">
                     <span
-                      className={`w-2 h-2 rounded-full mr-1 ${
-                        driver.isActive ? "bg-green-500" : "bg-red-500"
-                      }`}
-                    ></span>
-                    {driver.isActive ? "Active" : "Inactive"}
-                  </span>
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(driver.status)}`}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full mr-2 ${getStatusDotColor(driver.status)}`}
+                      ></span>
+                      {formatStatusText(driver.status)}
+                    </span>
+                    {driver.availability && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {driver.availability}
+                      </span>
+                    )}
+                  </div>
                 </td>
 
                 {/* Earnings */}
                 <td className="px-4 lg:px-6 py-4 text-center">
                   <div className="text-sm font-semibold text-green-600 dark:text-green-400">
-                    ₹{driver.total_earning?.toLocaleString() || "0"}
+                    ₹{driver.totalEarnings?.toLocaleString() || "0"}
                   </div>
                 </td>
 
                 {/* Rides */}
                 <td className="px-4 lg:px-6 py-4 text-center">
                   <div className="text-sm text-gray-900 dark:text-white">
-                    {driver.total_complete_rides || "0"}
+                    {driver.totalRides || "0"}
                   </div>
                 </td>
 
@@ -312,22 +395,18 @@ const DriverTable = ({
                 <td className="px-4 lg:px-6 py-4 text-center">
                   <div className="flex justify-center space-x-2">
                     <button
-                      onClick={() => viewDriverDetails(driver.userId)}
+                      onClick={() => viewDriverDetails(driver.userId || driver.id)}
                       className="inline-flex items-center px-3 py-1 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
+                      title="View driver details"
                     >
                       <FiEye size={14} className="mr-1" />
                       View
                     </button>
 
                     <button
-                      onClick={() =>
-                        handleDeleteDriver(
-                          typeof driver._id === "object" && "$oid" in driver._id
-                            ? driver._id.$oid
-                            : driver._id
-                        )
-                      }
+                      onClick={() => handleDeleteDriver(driver)} 
                       className="inline-flex items-center px-3 py-1 border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-sm"
+                      title="Delete driver"
                     >
                       <FiTrash2 size={14} className="mr-1" />
                       Delete
@@ -340,7 +419,7 @@ const DriverTable = ({
         </table>
       </div>
 
-      {/* Pagination (Previous Code) */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-600">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">

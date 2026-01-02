@@ -46,7 +46,7 @@ export const allDriverAPI = {
   // Delete driver
   deleteDriver: async (driverId) => {
     try {
-      const response = await axiosInstance.delete(`/deleteAccount/${driverId}`);
+      const response = await axiosInstance.delete(`/driver/deleteAccount/${driverId}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting driver:", error);
