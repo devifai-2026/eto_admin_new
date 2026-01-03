@@ -572,55 +572,7 @@ const AllDriverDetails = () => {
             </div>
           </div>
 
-          {/* Card Details */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">ETO ID:</span>
-                <span className="text-gray-900 dark:text-white font-semibold">{etoCard.eto_id_num}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Helpline Number:</span>
-                <a 
-                  href={`tel:${etoCard.helpLine_num}`}
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  {etoCard.helpLine_num}
-                </a>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Joined At:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {new Date(etoCard.createdAt).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Driver License:</span>
-                <span className="text-gray-900 dark:text-white">{driver.license_number || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Toto Photos:</span>
-                <span className="text-gray-900 dark:text-white">{driver.car_photo?.length || 0} photos</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Last Updated:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {new Date(etoCard.updatedAt).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-            </div>
-          </div>
+        
         </div>
       )}
 
