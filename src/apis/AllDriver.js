@@ -34,7 +34,7 @@ export const allDriverAPI = {
   // Get driver by ID
   getDriverById: async (driverId) => {
     try {
-      const response = await axiosInstance.get(`/driver/${driverId}`);
+      const response = await axiosInstance.get(`/driver/admin/${driverId}`);
       const driver = response.data;
       return driver;
     } catch (error) {
