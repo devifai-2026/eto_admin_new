@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { allDriverAPI } from '../../../apis/AllDriver';
 import LocationName from '../../../common/Loader/LocationName';
+import logobg from "../../../assets/driverDetails/logoBg.jpeg"
+import backbg from "../../../assets/driverDetails/bg.jpeg"
+import qr from "../../../assets/driverDetails/qr.jpeg"
 import {
   FiUser,
   FiMapPin,
@@ -12,16 +15,12 @@ import {
   FiArrowUpRight,
   FiChevronLeft,
   FiCreditCard,
-  FiCalendar,
-  FiSearch,
   FiDownload,
-  FiShield,
+  FiCheckCircle,
+  FiAlertCircle,
   FiNavigation,
   FiTruck,
-  FiClock,
-  FiCheckCircle,
-  FiXCircle,
-  FiAlertCircle
+  FiClock
 } from 'react-icons/fi';
 import { Helmet } from 'react-helmet';
 import html2canvas from 'html2canvas';
@@ -38,7 +37,11 @@ const FranchiseDriverDetails = () => {
   const [etoCard, setEtoCard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const etoCardRef = useRef(null);
+  const [isFlipped, setIsFlipped] = useState(false);
+  
+  // Refs for front and back sides for PDF capture
+  const frontSideRef = useRef(null);
+  const backSideRef = useRef(null);
 
   useEffect(() => {
     const fetchDriverDetails = async () => {
@@ -79,31 +82,193 @@ const FranchiseDriverDetails = () => {
   };
 
   const downloadEtoCardPDF = async () => {
-    if (!etoCardRef.current || !etoCard) return;
-
     try {
-      const canvas = await html2canvas(etoCardRef.current, {
+      // Create a temporary container for capturing
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = '340px';
+      tempContainer.style.display = 'flex';
+      tempContainer.style.flexDirection = 'column';
+      tempContainer.style.gap = '60px';
+      tempContainer.style.background = '#ffffff';
+      document.body.appendChild(tempContainer);
+
+      // Clone and prepare front side
+      const frontClone = frontSideRef.current.cloneNode(true);
+      
+      // Remove any flip-related classes and styles
+      frontClone.className = '';
+      frontClone.style.cssText = `
+        width: 340px;
+        height: 640px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+      `;
+      
+      // Ensure all images are loaded
+      const frontImages = frontClone.getElementsByTagName('img');
+      for (let img of frontImages) {
+        if (!img.complete) {
+          await new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }
+      }
+      
+      tempContainer.appendChild(frontClone);
+
+      // Clone and prepare back side
+      const backClone = backSideRef.current.cloneNode(true);
+      
+      // Remove any flip-related classes and styles
+      backClone.className = '';
+      backClone.style.cssText = `
+        width: 340px;
+        height: 640px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+      `;
+      
+      // Ensure all images are loaded
+      const backImages = backClone.getElementsByTagName('img');
+      for (let img of backImages) {
+        if (!img.complete) {
+          await new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }
+      }
+      
+      tempContainer.appendChild(backClone);
+
+      // Wait for a moment to ensure DOM is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Capture each side separately
+      const frontCanvas = await html2canvas(frontClone, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        logging: false
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      const backCanvas = await html2canvas(backClone, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
+      // Clean up
+      document.body.removeChild(tempContainer);
+
+      // Create PDF
       const pdf = new jsPDF({
-        orientation: 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
-        format: [86, 54] // Standard ID card size
+        format: 'a4'
       });
 
-      const imgWidth = 86;
-      const imgHeight = 54;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`ETO-Card-${etoCard.eto_id_num || driver?.name}.pdf`);
+      // Convert canvases to data URLs
+      const frontImgData = frontCanvas.toDataURL('image/png');
+      const backImgData = backCanvas.toDataURL('image/png');
+
+      // Card dimensions
+      const cardWidth = 86; // Width in mm
+      const cardHeight = 170; // Height in mm
+
+      // Calculate position to center horizontally
+      const xPos = (pageWidth - cardWidth) / 2;
+
+      // Calculate vertical position to center on page
+      const yPos = (pageHeight - cardHeight) / 2;
+
+      // PAGE 1: FRONT SIDE
+      // Add front side to PDF (centered on page)
+      pdf.addImage(frontImgData, 'PNG', 
+        xPos, 
+        yPos, 
+        cardWidth, 
+        cardHeight
+      );
+
+      // Add "FRONT SIDE" label at top
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('FRONT SIDE', pageWidth / 2, 20, { align: 'center' });
+
+      // Add decorative border
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+      // Add page number
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Page 1 of 2', pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+      // PAGE 2: BACK SIDE
+      pdf.addPage();
+
+      // Add back side to PDF (centered on page)
+      pdf.addImage(backImgData, 'PNG', 
+        xPos, 
+        yPos, 
+        cardWidth, 
+        cardHeight
+      );
+
+      // Add "BACK SIDE" label at top
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('BACK SIDE', pageWidth / 2, 20, { align: 'center' });
+
+      // Add decorative border
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+      // Add page number
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Page 2 of 2', pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+      // Add download date footer on last page
+      const currentDate = new Date().toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+      const currentTime = new Date().toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      pdf.setFontSize(9);
+      pdf.text(`Downloaded: ${currentDate} ${currentTime}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
+
+      pdf.save(`ETO-Card-${etoCard?.eto_id_num || driver?.name}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to download ETO Card. Please try again.');
     }
+  };
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
   };
 
   if (loading) {
@@ -239,140 +404,6 @@ const FranchiseDriverDetails = () => {
         </div>
       </div>
 
-      {/* ETO Card Preview Section */}
-      {etoCard && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <FiCreditCard className="text-blue-600 dark:text-blue-400 text-xl" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                ETO Card
-              </h3>
-              <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Active
-              </span>
-            </div>
-            <button
-              onClick={downloadEtoCardPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <FiDownload className="w-4 h-4" />
-              Download PDF
-            </button>
-          </div>
-
-          {/* ETO Card Preview */}
-          <div className="flex justify-center">
-            <div 
-              ref={etoCardRef}
-              className="relative w-[340px] h-[220px] bg-white border-4 border-black rounded-lg overflow-hidden"
-            >
-              {/* Front Side */}
-              <div className="absolute inset-0">
-                {/* Top Banner */}
-                <div className="h-[30%] bg-gradient-to-r from-blue-600 to-blue-800 relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-white text-lg font-bold">ETO DRIVER ID CARD</span>
-                  </div>
-                  
-                  {/* Profile Image Container */}
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-24 h-24 rounded-full bg-white p-1">
-                    <img
-                      src={driver.driver_photo}
-                      alt="Driver"
-                      className="w-full h-full rounded-full object-cover border-2 border-blue-600"
-                      onError={(e) => {
-                        e.target.src = '/default-avatar.png';
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Driver Name */}
-                <div className="mt-16 text-center">
-                  <h3 className="text-2xl font-bold text-gray-900">{driver.name}</h3>
-                  <div className="mt-2 px-4 py-1 bg-blue-100 inline-block rounded-full">
-                    <span className="text-blue-800 font-semibold">
-                      ID: {etoCard.eto_id_num}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Address Details */}
-                <div className="mt-4 px-6">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="text-gray-600 font-medium">Village:</div>
-                    <div className="text-gray-900">{driver.village || 'N/A'}</div>
-                    
-                    <div className="text-gray-600 font-medium">Post Office:</div>
-                    <div className="text-gray-900">{driver.post_office || 'N/A'}</div>
-                    
-                    <div className="text-gray-600 font-medium">Police Station:</div>
-                    <div className="text-gray-900">{driver.police_station || 'N/A'}</div>
-                    
-                    <div className="text-gray-600 font-medium">District:</div>
-                    <div className="text-gray-900">{driver.district || 'N/A'}</div>
-                    
-                    <div className="text-gray-600 font-medium">PIN Code:</div>
-                    <div className="text-gray-900">{driver.pin_code || 'N/A'}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card Details */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">ETO ID:</span>
-                <span className="text-gray-900 dark:text-white font-semibold">{etoCard.eto_id_num}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Helpline Number:</span>
-                <a 
-                  href={`tel:${etoCard.helpLine_num}`}
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  {etoCard.helpLine_num}
-                </a>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Created At:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {new Date(etoCard.createdAt).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Driver License:</span>
-                <span className="text-gray-900 dark:text-white">{driver.license_number || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Toto Photos:</span>
-                <span className="text-gray-900 dark:text-white">{driver.car_photo?.length || 0} photos</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Last Updated:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {new Date(etoCard.updatedAt).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
@@ -431,6 +462,244 @@ const FranchiseDriverDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* ETO Card Preview Section - SAME DESIGN AS ALL DRIVERS */}
+      {etoCard && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <FiCreditCard className="text-blue-600 dark:text-blue-400 text-xl" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                ETO Card
+              </h3>
+              <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                Active
+              </span>
+            </div>
+            <button
+              onClick={downloadEtoCardPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <FiDownload className="w-4 h-4" />
+              Download PDF
+            </button>
+          </div>
+
+          {/* Flip Arrow - Outside and above the card */}
+          <div className="flex justify-center mb-2">
+            <button
+              onClick={handleFlip}
+              className="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center shadow-md transition-all hover:scale-110"
+              title="Flip Card"
+            >
+              <FiChevronLeft className="w-6 h-6 text-white" />
+            </button>
+          </div>
+
+          {/* ETO Card Preview */}
+          <div className="flex justify-center">
+            <div className="relative w-[370px] h-[720px]">
+              {/* Front Side - Hidden when flipped */}
+              <div 
+                ref={frontSideRef}
+                className={`absolute inset-0 w-full h-full transition-all duration-500 ${isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+              >
+                <div className="bg-white rounded-lg overflow-hidden border-4 border-black shadow-lg h-full">
+                  {/* Top Banner with Background Image */}
+                  <div 
+                    className="h-[30%] relative bg-cover bg-center"
+                    style={{ backgroundImage: `url(${logobg})` }}
+                  >
+                    {/* Overlay for better text readability */}
+                    <div className="absolute inset-0 bg-black/10"></div>
+                    
+                    {/* Profile Image Container */}
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 rounded-full bg-white shadow-lg">
+                      <img
+                        src={driver.driver_photo}
+                        alt="Driver"
+                        className="w-full h-full rounded-full object-cover border-2 border-yellow-500"
+                        onError={(e) => {
+                          e.target.src = '/default-avatar.png';
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Content Area */}
+                  <div className="p-4 mt-20">
+                    {/* Driver Name and ID */}
+                    <div className="text-center mb-6">
+                      <div className="px-3 py-1 bg-gradient-to-r from-yellow-800 via-yellow-300 to-yellow-800 inline-block rounded-3xl shadow-md mb-4">
+                        <span className="text-black font-bold text-lg tracking-wide">
+                          Driver ID: {etoCard.eto_id_num}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Address Details Header */}
+                    <div className="mb-1">
+                      <h2 className="font-bold text-xl text-left text-gray-800 mb-3">
+                        Address Details :
+                      </h2>
+                    </div>
+
+                    {/* Address Details Grid */}
+                    <div className="grid grid-cols-1 gap-3 mb-4">
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">Village:</span>
+                        <span className="text-gray-900 font-semibold">{driver.village || 'N/A'}</span>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">Post Office:</span>
+                        <span className="text-gray-900 font-semibold">{driver.post_office || 'N/A'}</span>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">Land Mark:</span>
+                        <span className="text-gray-900 font-semibold">{driver.landmark || driver.land_mark || 'N/A'}</span>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">Police Station:</span>
+                        <span className="text-gray-900 font-semibold">{driver.police_station || 'N/A'}</span>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">District:</span>
+                        <span className="text-gray-900 font-semibold">{driver.district || 'N/A'}</span>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">PIN Code:</span>
+                        <span className="text-gray-900 font-semibold">{driver.pin_code || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">License No:</span>
+                        <span className="text-gray-900 font-semibold">{driver.license_number || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 font-medium min-w-[140px]">Toto-License No:</span>
+                        <span className="text-gray-900 font-semibold">{driver.toto_license_number || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Back Side - Hidden when not flipped */}
+              <div 
+                ref={backSideRef}
+                className={`absolute inset-0 w-full h-full transition-all duration-500 ${isFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+              >
+                <div className="bg-white rounded-lg overflow-hidden border-4 border-black shadow-lg h-full">
+                  {/* Back Side Design with Background Image */}
+                  <div 
+                    className="h-[30%] relative bg-cover bg-center"
+                    style={{ backgroundImage: `url(${backbg})` }}
+                  >
+                    {/* Overlay for better text readability */}
+                    <div className="absolute inset-0 bg-black/20"></div>
+                    
+                    {/* QR Code Container - Positioned similarly to profile image */}
+                    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 rounded-lg shadow-lg">
+                      <div className="w-full h-full flex-col items-center justify-center">
+                       <img src={qr} alt="QR Code" className="w-full h-full object-contain" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 pt-14">
+                    <div className="text-center mb-6">
+                      <div className="mb-3 flex items-center gap-2 justify-center">
+                        <div className="text-lg font-bold">Help Line Number :</div>
+                        <div className="text-lg font-bold">{etoCard.helpLine_num}</div>
+                      </div>
+                      <div>
+                        <img 
+                          className='w-28 h-28 flex justify-center mx-auto' 
+                          src={etoCard.id_details?.car_photo?.[1] || '/default-car.png'} 
+                          alt="Location" 
+                          onError={(e) => {
+                            e.target.src = '/default-car.png';
+                          }}
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <div className="font-bold text-gray-900 mb-1 text-lg">Terms & Conditions</div>
+                        <div className="text-sm text-gray-600 text-left">
+                          By using our ride-booking app, you agree to follow all policies. 
+                          Riders and drivers must act respectfully. The app connects users 
+                          with drivers but is not liable for ride quality or any incidents during the ride.Payments are final and cancellations may incur fees.Misuse fraud or violations can lead to account suspension.Ride availability is not guaranteed and terms are subject to updates.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card click area for flip */}
+              <div 
+                className="absolute inset-0 cursor-pointer"
+                onClick={handleFlip}
+              >
+                <div className="absolute inset-0 opacity-0 hover:opacity-5 hover:bg-gray-500 transition-opacity"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card Details */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">ETO ID:</span>
+                <span className="text-gray-900 dark:text-white font-semibold">{etoCard.eto_id_num}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Helpline Number:</span>
+                <a 
+                  href={`tel:${etoCard.helpLine_num}`}
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {etoCard.helpLine_num}
+                </a>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Joined At:</span>
+                <span className="text-gray-900 dark:text-white">
+                  {new Date(etoCard.createdAt).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Driver License:</span>
+                <span className="text-gray-900 dark:text-white">{driver.license_number || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Toto Photos:</span>
+                <span className="text-gray-900 dark:text-white">{driver.car_photo?.length || 0} photos</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-600 dark:text-gray-300">Last Updated:</span>
+                <span className="text-gray-900 dark:text-white">
+                  {new Date(etoCard.updatedAt).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Additional Wallet Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -622,13 +891,13 @@ const FranchiseDriverDetails = () => {
             <div className="flex justify-between">
               <span className="font-medium text-gray-600 dark:text-gray-300">Last Seen:</span>
               <span className="text-gray-900 dark:text-white text-sm">
-                {new Date(driver.lastSeen).toLocaleDateString('en-IN', {
+                {driver.lastSeen ? new Date(driver.lastSeen).toLocaleDateString('en-IN', {
                   day: '2-digit',
                   month: 'short',
                   year: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
-                })}
+                }) : 'N/A'}
               </span>
             </div>
             <div className="flex justify-between">
