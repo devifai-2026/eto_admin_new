@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { allDriverAPI } from '../../apis/AllDriver';
-import Breadcrumbs from '../Breadcrumbs/BreadCrumbs';
-import LocationName from '../../common/Loader/LocationName';
-import logobg from "../../assets/driverDetails/logoBg.jpeg"
-import backbg from "../../assets/driverDetails/bg.jpeg"
-import qr from "../../assets/driverDetails/qr.jpeg"
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { allDriverAPI } from "../../apis/AllDriver";
+import Breadcrumbs from "../Breadcrumbs/BreadCrumbs";
+import LocationName from "../../common/Loader/LocationName";
+import logobg from "../../assets/driverDetails/logoBg.jpeg";
+import backbg from "../../assets/driverDetails/bg.jpeg";
+import qr from "../../assets/driverDetails/qr.jpeg";
 import {
   FiUser,
   FiMapPin,
@@ -18,11 +18,11 @@ import {
   FiCreditCard,
   FiCalendar,
   FiSearch,
-  FiDownload
-} from 'react-icons/fi';
-import { Helmet } from 'react-helmet';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+  FiDownload,
+} from "react-icons/fi";
+import { Helmet } from "react-helmet";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const AllDriverDetails = () => {
   const { driverId } = useParams();
@@ -31,14 +31,14 @@ const AllDriverDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dateRange, setDateRange] = useState({
-    from: '',
-    to: ''
+    from: "",
+    to: "",
   });
   const [rangeData, setRangeData] = useState(null);
   const [loadingRange, setLoadingRange] = useState(false);
   const [etoCard, setEtoCard] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
-  
+
   // Refs for front and back sides for PDF capture
   const frontSideRef = useRef(null);
   const backSideRef = useRef(null);
@@ -49,17 +49,17 @@ const AllDriverDetails = () => {
         setLoading(true);
         const driverData = await allDriverAPI.getDriverById(driverId);
 
-        console.log('Fetched driver data:', driverData);
-        
+        console.log("Fetched driver data:", driverData);
+
         if (driverData) {
           setDriver(driverData.data.driver);
           setEtoCard(driverData.data.etoCard);
         } else {
-          setError('Driver not found');
+          setError("Driver not found");
         }
       } catch (err) {
-        console.error('Error fetching driver details:', err);
-        setError('Failed to load driver details');
+        console.error("Error fetching driver details:", err);
+        setError("Failed to load driver details");
       } finally {
         setLoading(false);
       }
@@ -75,212 +75,214 @@ const AllDriverDetails = () => {
 
     try {
       setLoadingRange(true);
-      const rangeDataResponse = await allDriverAPI.getDriverRangeData(driverId, dateRange);
+      const rangeDataResponse = await allDriverAPI.getDriverRangeData(
+        driverId,
+        dateRange
+      );
       setRangeData(rangeDataResponse);
     } catch (err) {
-      console.error('Error fetching range data:', err);
+      console.error("Error fetching range data:", err);
     } finally {
       setLoadingRange(false);
     }
   };
 
   const handleDateChange = (field, value) => {
-    setDateRange(prev => ({
+    setDateRange((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const clearDateRange = () => {
-    setDateRange({ from: '', to: '' });
+    setDateRange({ from: "", to: "" });
     setRangeData(null);
   };
 
   const downloadEtoCardPDF = async () => {
-  try {
-    // Create a temporary container for capturing
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.top = '-9999px';
-    tempContainer.style.width = '340px';
-    tempContainer.style.display = 'flex';
-    tempContainer.style.flexDirection = 'column';
-    tempContainer.style.gap = '60px';
-    tempContainer.style.background = '#ffffff';
-    document.body.appendChild(tempContainer);
+    try {
+      // Create a temporary container for capturing
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "absolute";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "-9999px";
+      tempContainer.style.width = "370px";
+      tempContainer.style.display = "flex";
+      tempContainer.style.flexDirection = "column";
+      tempContainer.style.gap = "60px";
+      tempContainer.style.background = "#ffffff";
+      document.body.appendChild(tempContainer);
 
-    // Clone and prepare front side
-    const frontClone = frontSideRef.current.cloneNode(true);
-    
-    // Remove any flip-related classes and styles
-    frontClone.className = '';
-    frontClone.style.cssText = `
-      width: 340px;
-      height: 640px;
+      // Clone and prepare front side
+      const frontClone = frontSideRef.current.cloneNode(true);
+
+      // Remove any flip-related classes and styles
+      frontClone.className = "";
+      frontClone.style.cssText = `
+      width: 370px;
+      height: 720px;
       background: white;
-      border-radius: 8px;
+      border-radius: 4px;
       overflow: hidden;
       position: relative;
     `;
-    
-    // Ensure all images are loaded
-    const frontImages = frontClone.getElementsByTagName('img');
-    for (let img of frontImages) {
-      if (!img.complete) {
-        await new Promise(resolve => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      }
-    }
-    
-    tempContainer.appendChild(frontClone);
 
-    // Clone and prepare back side
-    const backClone = backSideRef.current.cloneNode(true);
-    
-    // Remove any flip-related classes and styles
-    backClone.className = '';
-    backClone.style.cssText = `
-      width: 340px;
-      height: 640px;
+      // Ensure all images are loaded
+      const frontImages = frontClone.getElementsByTagName("img");
+      for (let img of frontImages) {
+        if (!img.complete) {
+          await new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }
+      }
+
+      tempContainer.appendChild(frontClone);
+
+      // Clone and prepare back side
+      const backClone = backSideRef.current.cloneNode(true);
+
+      // Remove any flip-related classes and styles
+      backClone.className = "";
+      backClone.style.cssText = `
+      width: 370px;
+      height: 720px;
       background: white;
-      border-radius: 8px;
+      border-radius: 4px;
       overflow: hidden;
       position: relative;
     `;
-    
-    // Ensure all images are loaded
-    const backImages = backClone.getElementsByTagName('img');
-    for (let img of backImages) {
-      if (!img.complete) {
-        await new Promise(resolve => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
+
+      // Ensure all images are loaded
+      const backImages = backClone.getElementsByTagName("img");
+      for (let img of backImages) {
+        if (!img.complete) {
+          await new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }
       }
+
+      tempContainer.appendChild(backClone);
+
+      // Wait for a moment to ensure DOM is ready
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Capture each side separately
+      const frontCanvas = await html2canvas(frontClone, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      const backCanvas = await html2canvas(backClone, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      // Clean up
+      document.body.removeChild(tempContainer);
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Convert canvases to data URLs
+      const frontImgData = frontCanvas.toDataURL("image/png");
+      const backImgData = backCanvas.toDataURL("image/png");
+
+      // Card dimensions
+      const cardWidth = 86; // Width in mm
+      const cardHeight = 170; // Height in mm
+
+      // Calculate position to center horizontally
+      const xPos = (pageWidth - cardWidth) / 2;
+
+      // Calculate vertical position to center on page
+      const yPos = (pageHeight - cardHeight) / 2;
+
+      // PAGE 1: FRONT SIDE
+      // Add front side to PDF (centered on page)
+      pdf.addImage(frontImgData, "PNG", xPos, yPos, cardWidth, cardHeight);
+
+      // Add "FRONT SIDE" label at top
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("FRONT SIDE", pageWidth / 2, 20, { align: "center" });
+
+      // Add decorative border
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+      // Add page number
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Page 1 of 2", pageWidth / 2, pageHeight - 10, {
+        align: "center",
+      });
+
+      // PAGE 2: BACK SIDE
+      pdf.addPage();
+
+      // Add back side to PDF (centered on page)
+      pdf.addImage(backImgData, "PNG", xPos, yPos, cardWidth, cardHeight);
+
+      // Add "BACK SIDE" label at top
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("BACK SIDE", pageWidth / 2, 20, { align: "center" });
+
+      // Add decorative border
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+      // Add page number
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Page 2 of 2", pageWidth / 2, pageHeight - 10, {
+        align: "center",
+      });
+
+      // Add download date footer on last page
+      const currentDate = new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+      const currentTime = new Date().toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      pdf.setFontSize(9);
+      pdf.text(
+        `Downloaded: ${currentDate} ${currentTime}`,
+        pageWidth / 2,
+        pageHeight - 5,
+        { align: "center" }
+      );
+
+      pdf.save(`ETO-Card-${etoCard.eto_id_num || driver?.name}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to download ETO Card. Please try again.");
     }
-    
-    tempContainer.appendChild(backClone);
-
-    // Wait for a moment to ensure DOM is ready
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Capture each side separately
-    const frontCanvas = await html2canvas(frontClone, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false
-    });
-
-    const backCanvas = await html2canvas(backClone, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false
-    });
-
-    // Clean up
-    document.body.removeChild(tempContainer);
-
-    // Create PDF
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    
-    // Convert canvases to data URLs
-    const frontImgData = frontCanvas.toDataURL('image/png');
-    const backImgData = backCanvas.toDataURL('image/png');
-
-    // Card dimensions
-    const cardWidth = 86; // Width in mm
-    const cardHeight = 170; // Height in mm
-
-    // Calculate position to center horizontally
-    const xPos = (pageWidth - cardWidth) / 2;
-
-    // Calculate vertical position to center on page
-    const yPos = (pageHeight - cardHeight) / 2;
-
-    // PAGE 1: FRONT SIDE
-    // Add front side to PDF (centered on page)
-    pdf.addImage(frontImgData, 'PNG', 
-      xPos, 
-      yPos, 
-      cardWidth, 
-      cardHeight
-    );
-
-    // Add "FRONT SIDE" label at top
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('FRONT SIDE', pageWidth / 2, 20, { align: 'center' });
-
-    // Add decorative border
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.5);
-    pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
-
-    // Add page number
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text('Page 1 of 2', pageWidth / 2, pageHeight - 10, { align: 'center' });
-
-    // PAGE 2: BACK SIDE
-    pdf.addPage();
-
-    // Add back side to PDF (centered on page)
-    pdf.addImage(backImgData, 'PNG', 
-      xPos, 
-      yPos, 
-      cardWidth, 
-      cardHeight
-    );
-
-    // Add "BACK SIDE" label at top
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('BACK SIDE', pageWidth / 2, 20, { align: 'center' });
-
-    // Add decorative border
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.5);
-    pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
-
-    // Add page number
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text('Page 2 of 2', pageWidth / 2, pageHeight - 10, { align: 'center' });
-
-    // Add download date footer on last page
-    const currentDate = new Date().toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-    const currentTime = new Date().toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    
-    pdf.setFontSize(9);
-    pdf.text(`Downloaded: ${currentDate} ${currentTime}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
-
-    pdf.save(`ETO-Card-${etoCard.eto_id_num || driver?.name}.pdf`);
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    alert('Failed to download ETO Card. Please try again.');
-  }
-};
+  };
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -291,7 +293,9 @@ const AllDriverDetails = () => {
       <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <Breadcrumbs />
         <div className="flex justify-center items-center h-64">
-          <div className="text-lg text-gray-600 dark:text-gray-300">Loading driver details...</div>
+          <div className="text-lg text-gray-600 dark:text-gray-300">
+            Loading driver details...
+          </div>
         </div>
       </div>
     );
@@ -302,9 +306,11 @@ const AllDriverDetails = () => {
       <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <Breadcrumbs />
         <div className="flex flex-col items-center justify-center h-64">
-          <div className="text-lg text-red-600 dark:text-red-400 mb-4">{error}</div>
+          <div className="text-lg text-red-600 dark:text-red-400 mb-4">
+            {error}
+          </div>
           <button
-            onClick={() => navigate('/all-drivers')}
+            onClick={() => navigate("/all-drivers")}
             className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <FiChevronLeft className="mr-2" />
@@ -320,17 +326,19 @@ const AllDriverDetails = () => {
       <Helmet>
         <title>Admin | All Drivers Details</title>
       </Helmet>
-      
+
       {/* Header with Back Button */}
       <div className="mb-6 flex items-center justify-between">
         <button
-          onClick={() => navigate('/all-drivers')}
+          onClick={() => navigate("/all-drivers")}
           className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
         >
           <FiChevronLeft className="mr-2" size={20} />
           Back to Drivers
         </button>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Driver Details</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Driver Details
+        </h1>
         <div className="w-24" />
       </div>
 
@@ -339,31 +347,31 @@ const AllDriverDetails = () => {
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
             <img
-              src={driver.driver_photo || '/default-avatar.png'}
+              src={driver.driver_photo || "/default-avatar.png"}
               alt="Driver"
               className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md"
               onError={(e) => {
-                e.target.src = '/default-avatar.png';
+                e.target.src = "/default-avatar.png";
               }}
             />
             <span
               className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white dark:border-gray-700 ${
-                driver.isActive ? 'bg-green-500' : 'bg-red-500'
+                driver.isActive ? "bg-green-500" : "bg-red-500"
               }`}
             />
           </div>
           <div className="text-center sm:text-left flex-1">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {driver.name || 'Unknown Driver'}
+              {driver.name || "Unknown Driver"}
             </h2>
             <p
               className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-3 ${
                 driver.isActive
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
               }`}
             >
-              {driver.isActive ? '● Active' : '● Inactive'}
+              {driver.isActive ? "● Active" : "● Inactive"}
             </p>
             <div className="flex flex-wrap gap-4 mt-4">
               {driver.phone && (
@@ -426,19 +434,21 @@ const AllDriverDetails = () => {
           <div className="flex justify-center">
             <div className="relative w-[370px] h-[720px]">
               {/* Front Side - Hidden when flipped */}
-              <div 
+              <div
                 ref={frontSideRef}
-                className={`absolute inset-0 w-full h-full transition-all duration-500 ${isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                className={`absolute inset-0 w-full h-full transition-all duration-500 ${
+                  isFlipped ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}
               >
                 <div className="bg-white rounded-lg overflow-hidden border-4 border-black shadow-lg h-full">
                   {/* Top Banner with Background Image */}
-                  <div 
+                  <div
                     className="h-[30%] relative bg-cover bg-center"
                     style={{ backgroundImage: `url(${logobg})` }}
                   >
                     {/* Overlay for better text readability */}
                     <div className="absolute inset-0 bg-black/10"></div>
-                    
+
                     {/* Profile Image Container */}
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 rounded-full bg-white shadow-lg">
                       <img
@@ -446,7 +456,7 @@ const AllDriverDetails = () => {
                         alt="Driver"
                         className="w-full h-full rounded-full object-cover border-2 border-yellow-500"
                         onError={(e) => {
-                          e.target.src = '/default-avatar.png';
+                          e.target.src = "/default-avatar.png";
                         }}
                       />
                     </div>
@@ -456,10 +466,68 @@ const AllDriverDetails = () => {
                   <div className="p-4 mt-20">
                     {/* Driver Name and ID */}
                     <div className="text-center mb-6">
-                      <div className="px-3 py-1 bg-gradient-to-r from-yellow-800 via-yellow-300 to-yellow-800 inline-block rounded-3xl shadow-md mb-4">
-                        <span className="text-black font-bold text-lg tracking-wide">
-                          Driver ID: {etoCard.eto_id_num}
-                        </span>
+                      <div className="flex justify-center">
+                        <svg
+                          width="100%"
+                          height="50"
+                          viewBox="0 0 300 50"
+                          preserveAspectRatio="xMidYMid meet"
+                          className="max-w-xs"
+                        >
+                          <defs>
+                            <linearGradient
+                              id="badgeGradient"
+                              x1="0%"
+                              y1="0%"
+                              x2="100%"
+                              y2="0%"
+                            >
+                              <stop offset="0%" stopColor="rgb(120, 53, 15)" />
+                              <stop
+                                offset="50%"
+                                stopColor="rgb(212, 175, 55)"
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor="rgb(120, 53, 15)"
+                              />
+                            </linearGradient>
+                            <filter id="badgeShadow">
+                              <feDropShadow
+                                dx="0"
+                                dy="2"
+                                stdDeviation="3"
+                                floodOpacity="0.3"
+                              />
+                            </filter>
+                          </defs>
+
+                          {/* Rounded rectangle background */}
+                          <rect
+                            x="20"
+                            y="5"
+                            width="260"
+                            height="40"
+                            rx="20"
+                            ry="20"
+                            fill="url(#badgeGradient)"
+                            filter="url(#badgeShadow)"
+                          />
+
+                          {/* Text */}
+                          <text
+                            x="150"
+                            y="32"
+                            textAnchor="middle"
+                            fill="black"
+                            fontSize="16"
+                            fontWeight="bold"
+                            fontFamily="system-ui, -apple-system, sans-serif"
+                            letterSpacing="0.3"
+                          >
+                            Driver ID: {etoCard.eto_id_num}
+                          </text>
+                        </svg>
                       </div>
                     </div>
 
@@ -473,41 +541,73 @@ const AllDriverDetails = () => {
                     {/* Address Details Grid */}
                     <div className="grid grid-cols-1 gap-3 mb-4">
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">Village:</span>
-                        <span className="text-gray-900 font-semibold">{driver.village || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          Village:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.village || "N/A"}
+                        </span>
                       </div>
-                      
+
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">Post Office:</span>
-                        <span className="text-gray-900 font-semibold">{driver.post_office || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          Post Office:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.post_office || "N/A"}
+                        </span>
                       </div>
-                      
+
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">Land Mark:</span>
-                        <span className="text-gray-900 font-semibold">{driver.landmark || driver.land_mark || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          Land Mark:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.landmark || driver.land_mark || "N/A"}
+                        </span>
                       </div>
-                      
+
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">Police Station:</span>
-                        <span className="text-gray-900 font-semibold">{driver.police_station || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          Police Station:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.police_station || "N/A"}
+                        </span>
                       </div>
-                      
+
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">District:</span>
-                        <span className="text-gray-900 font-semibold">{driver.district || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          District:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.district || "N/A"}
+                        </span>
                       </div>
-                      
+
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">PIN Code:</span>
-                        <span className="text-gray-900 font-semibold">{driver.pin_code || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          PIN Code:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.pin_code || "N/A"}
+                        </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">License No:</span>
-                        <span className="text-gray-900 font-semibold">{driver.license_number || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          License No:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.license_number || "N/A"}
+                        </span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-600 font-medium min-w-[140px]">Toto-License No:</span>
-                        <span className="text-gray-900 font-semibold">{driver.toto_license_number || 'N/A'}</span>
+                        <span className="text-gray-600 font-medium min-w-[140px]">
+                          Toto-License No:
+                        </span>
+                        <span className="text-gray-900 font-semibold">
+                          {driver.toto_license_number || "N/A"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -515,25 +615,25 @@ const AllDriverDetails = () => {
               </div>
 
               {/* Back Side - Hidden when not flipped */}
-              <div 
+              <div
                 ref={backSideRef}
-                className={`absolute inset-0 w-full h-full transition-all duration-500 ${isFlipped ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`absolute inset-0 w-full h-full transition-all duration-500 ${
+                  isFlipped ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
               >
                 <div className="bg-white rounded-lg overflow-hidden border-4 border-black shadow-lg h-full">
                   {/* Back Side Design with Background Image */}
-                  <div 
+                  <div
                     className="h-[30%] relative bg-cover bg-center"
                     style={{ backgroundImage: `url(${backbg})` }}
                   >
                     {/* Overlay for better text readability */}
                     <div className="absolute inset-0 bg-black/20"></div>
-                    
+
                     {/* QR Code Container - Positioned similarly to profile image */}
                     <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 rounded-lg  shadow-lg">
                       <div className="w-full h-full flex-col items-center justify-center">
-                       <img src={qr} alt="" />
-                       
-                       
+                        <img src={qr} alt="" />
                       </div>
                     </div>
                   </div>
@@ -541,18 +641,33 @@ const AllDriverDetails = () => {
                   <div className="p-6 pt-14">
                     <div className="text-center mb-6">
                       <div className="mb-3 flex items-center gap-2 justify-center">
-                        <div className="text-lg font-bold">Help Line Number :</div>
-                        <div className="text-lg font-bold">{etoCard.helpLine_num}</div>
+                        <div className="text-lg font-bold">
+                          Help Line Number :
+                        </div>
+                        <div className="text-lg font-bold">
+                          {etoCard.helpLine_num}
+                        </div>
                       </div>
                       <div>
-                        <img className='w-28 h-28 flex justify-center mx-auto' src={etoCard.id_details.car_photo[1]} alt="Location" />
+                        <img
+                          className="w-28 h-28 flex justify-center mx-auto"
+                          src={etoCard.id_details.car_photo[1]}
+                          alt="Location"
+                        />
                       </div>
                       <div className="mt-3">
-                        <div className="font-bold text-gray-900 mb-1 text-lg">Terms & Conditions</div>
+                        <div className="font-bold text-gray-900 mb-1 text-lg">
+                          Terms & Conditions
+                        </div>
                         <div className="text-sm text-gray-600 text-left">
-                          By using our ride-booking app, you agree to follow all policies. 
-                          Riders and drivers must act respectfully. The app connects users 
-                          with drivers but is not liable for ride quality or any incidents during the ride.Payments are final and cancellations may incur fees.Misuse fraud or violations can lead to account suspension.Ride availability is not guaranteed and terms are subject to updates.
+                          By using our ride-booking app, you agree to follow all
+                          policies. Riders and drivers must act respectfully.
+                          The app connects users with drivers but is not liable
+                          for ride quality or any incidents during the
+                          ride.Payments are final and cancellations may incur
+                          fees.Misuse fraud or violations can lead to account
+                          suspension.Ride availability is not guaranteed and
+                          terms are subject to updates.
                         </div>
                       </div>
                     </div>
@@ -561,18 +676,14 @@ const AllDriverDetails = () => {
               </div>
 
               {/* Card click area for flip */}
-              <div 
+              <div
                 className="absolute inset-0 cursor-pointer"
                 onClick={handleFlip}
               >
                 <div className="absolute inset-0 opacity-0 hover:opacity-5 hover:bg-gray-500 transition-opacity"></div>
               </div>
-
-           
             </div>
           </div>
-
-        
         </div>
       )}
 
@@ -588,16 +699,28 @@ const AllDriverDetails = () => {
           </div>
           <div className="space-y-4">
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Email:</span>
-              <span className="text-gray-900 dark:text-white">{driver.email || '-'}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Email:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {driver.email || "-"}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Phone:</span>
-              <span className="text-gray-900 dark:text-white">{driver.phone || '-'}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Phone:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {driver.phone || "-"}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">License Number:</span>
-              <span className="text-gray-900 dark:text-white">{driver.license_number || '-'}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                License Number:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {driver.license_number || "-"}
+              </span>
             </div>
           </div>
         </div>
@@ -613,38 +736,62 @@ const AllDriverDetails = () => {
           <div className="space-y-4">
             {driver.village && (
               <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Village:</span>
-                <span className="text-gray-900 dark:text-white">{driver.village}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  Village:
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {driver.village}
+                </span>
               </div>
             )}
             {driver.police_station && (
               <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Police Station:</span>
-                <span className="text-gray-900 dark:text-white">{driver.police_station}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  Police Station:
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {driver.police_station}
+                </span>
               </div>
             )}
             {driver.district && (
               <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">District:</span>
-                <span className="text-gray-900 dark:text-white">{driver.district}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  District:
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {driver.district}
+                </span>
               </div>
             )}
             {driver.pin_code && (
               <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">PIN Code:</span>
-                <span className="text-gray-900 dark:text-white">{driver.pin_code}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  PIN Code:
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {driver.pin_code}
+                </span>
               </div>
             )}
             {driver.landmark && (
               <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Landmark:</span>
-                <span className="text-gray-900 dark:text-white">{driver.landmark}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  Landmark:
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {driver.landmark}
+                </span>
               </div>
             )}
             {driver.post_office && (
               <div className="flex justify-between">
-                <span className="font-medium text-gray-600 dark:text-gray-300">Post Office:</span>
-                <span className="text-gray-900 dark:text-white">{driver.post_office}</span>
+                <span className="font-medium text-gray-600 dark:text-gray-300">
+                  Post Office:
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  {driver.post_office}
+                </span>
               </div>
             )}
           </div>
@@ -665,7 +812,8 @@ const AllDriverDetails = () => {
                   GPS Coordinates:
                 </span>
                 <span className="text-gray-900 dark:text-white">
-                  {driver.current_location.coordinates[0].toFixed(6)}, {driver.current_location.coordinates[1].toFixed(6)}
+                  {driver.current_location.coordinates[0].toFixed(6)},{" "}
+                  {driver.current_location.coordinates[1].toFixed(6)}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -693,30 +841,56 @@ const AllDriverDetails = () => {
           </div>
           <div className="space-y-4">
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Status:</span>
-              <span className={`font-semibold ${driver.is_on_ride ? 'text-red-600' : 'text-green-600'}`}>
-                {driver.is_on_ride ? 'On Ride' : 'Available'}
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Status:
+              </span>
+              <span
+                className={`font-semibold ${
+                  driver.is_on_ride ? "text-red-600" : "text-green-600"
+                }`}
+              >
+                {driver.is_on_ride ? "On Ride" : "Available"}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Total Rides:</span>
-              <span className="text-gray-900 dark:text-white">{driver.total_complete_rides || 0}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Total Rides:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {driver.total_complete_rides || 0}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Total Earnings:</span>
-              <span className="text-gray-900 dark:text-white font-semibold">₹{(driver.total_earning || 0).toLocaleString('en-IN')}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Total Earnings:
+              </span>
+              <span className="text-gray-900 dark:text-white font-semibold">
+                ₹{(driver.total_earning || 0).toLocaleString("en-IN")}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Cash Wallet:</span>
-              <span className="text-gray-900 dark:text-white">₹{(driver.cash_wallet || 0).toLocaleString('en-IN')}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Cash Wallet:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                ₹{(driver.cash_wallet || 0).toLocaleString("en-IN")}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Online Wallet:</span>
-              <span className="text-gray-900 dark:text-white">₹{(driver.online_wallet || 0).toLocaleString('en-IN')}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Online Wallet:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                ₹{(driver.online_wallet || 0).toLocaleString("en-IN")}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Due Wallet:</span>
-              <span className="text-gray-900 dark:text-white">₹{(driver.due_wallet || 0).toLocaleString('en-IN')}</span>
+              <span className="font-medium text-gray-600 dark:text-gray-300">
+                Due Wallet:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                ₹{(driver.due_wallet || 0).toLocaleString("en-IN")}
+              </span>
             </div>
           </div>
         </div>
@@ -732,7 +906,8 @@ const AllDriverDetails = () => {
             </h3>
           </div>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {driver.car_photo?.length || 0} photos • {driver.aadhar_front_photo ? 2 : 0} Aadhar
+            {driver.car_photo?.length || 0} photos •{" "}
+            {driver.aadhar_front_photo ? 2 : 0} Aadhar
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -743,25 +918,24 @@ const AllDriverDetails = () => {
             />
           )}
           {driver.aadhar_back_photo && (
-            <DocumentCard
-              url={driver.aadhar_back_photo}
-              title="Aadhar Back"
-            />
+            <DocumentCard url={driver.aadhar_back_photo} title="Aadhar Back" />
           )}
-          {driver.car_photo && Array.isArray(driver.car_photo) && driver.car_photo.map((photo, index) => (
-            <DocumentCard
-              key={index}
-              url={photo}
-              title={`Toto Photo ${index + 1}`}
-            />
-          ))}
+          {driver.car_photo &&
+            Array.isArray(driver.car_photo) &&
+            driver.car_photo.map((photo, index) => (
+              <DocumentCard
+                key={index}
+                url={photo}
+                title={`Toto Photo ${index + 1}`}
+              />
+            ))}
         </div>
       </div>
 
       {/* Footer */}
       <div className="flex justify-end gap-4">
         <button
-          onClick={() => navigate('/all-drivers')}
+          onClick={() => navigate("/all-drivers")}
           className="flex items-center px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           <FiChevronLeft className="mr-2" />
@@ -795,7 +969,7 @@ const DocumentCard = ({ url, title }) => {
         alt={title}
         className="w-20 h-20 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform"
         onError={(e) => {
-          e.target.src = '/default-document.png';
+          e.target.src = "/default-document.png";
         }}
       />
       <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
