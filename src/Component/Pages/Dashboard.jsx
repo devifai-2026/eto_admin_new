@@ -5,6 +5,7 @@ import CardDataStats from '../Dashboard/CardDataStats';
 import ChartOne from '../Dashboard/ChartOne';
 import ChartThree from '../Dashboard/ChartThree';
 import { Helmet } from 'react-helmet';
+import axiosInstance from '../../utils/axiosInstance';
 
 const BACKEND_URI = import.meta.env.VITE_BACKEND_URI;
 
@@ -20,10 +21,10 @@ const Dashboard = () => {
   useEffect(() => {
     // Function to fetch registered drivers
     const fetchRegisterDriver = async () => {
-      const apiUrl = `${BACKEND_URI}/eto/api/v1/driver/`;
       try {
-        const response = await axios.get(apiUrl);
-        setRegisterDriver(response.data.data.count || 0);
+        const response = await axiosInstance.get("/driver");
+        console.log('Registered Drivers Response:', response);
+        setRegisterDriver(response.data.data.summary.totalDrivers || 0);
       } catch (error) {
         console.error('Error fetching registered drivers:', error);
         setRegisterDriver(0);
@@ -32,9 +33,8 @@ const Dashboard = () => {
 
     // Function to fetch drivers on current ride
     const fetchDriverOnCurrentRide = async () => {
-      const apiUrl = `${BACKEND_URI}/eto/api/v1/rides/all-driver/currentride`;
       try {
-        const response = await axios.get(apiUrl);
+        const response = await axiosInstance.get("/rides/all-driver/currentride");
         setDriverONCurrentRide(response.data.data.length || 0);
       } catch (error) {
         console.error('Error fetching drivers on current ride:', error);
@@ -44,9 +44,9 @@ const Dashboard = () => {
 
     // Function to fetch active drivers
     const fetchActiveDrivers = async () => {
-      const apiUrl = `${BACKEND_URI}/eto/api/v1/driver/active`;
+      // const apiUrl = `${BACKEND_URI}/eto/api/v1`;
       try {
-        const response = await axios.get(apiUrl);
+        const response = await axiosInstance.get('/driver/active');
         setActiveDriver(response.data.data.total || 0);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.data?.data?.total) {
@@ -60,9 +60,8 @@ const Dashboard = () => {
 
     // Function to fetch active rides
     const fetchActiveRides = async () => {
-      const apiUrl = `${BACKEND_URI}/eto/api/v1/rides/activeRides`;
       try {
-        const response = await axios.get(apiUrl);
+        const response = await axiosInstance.get('/rides/activeRides');
         setActiveRide(response.data.data.length || 0);
       } catch (error) {
         console.error('Error fetching active rides:', error);
@@ -74,7 +73,7 @@ const Dashboard = () => {
     const fetchTotalEarnings = async () => {
       const apiUrl = `${BACKEND_URI}/eto/api/v1/rides/totalEarnings`;
       try {
-        const response = await axios.get(apiUrl);
+        const response = await axiosInstance.get("/rides/totalEarnings");
         setTotalEarnings(response.data.totalEarnings || 0);
       } catch (error) {
         console.error('Error fetching total earnings:', error);

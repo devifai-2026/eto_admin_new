@@ -77,7 +77,7 @@ const ChartThree = ({ registerDriver, activeDriver, driverOnRide }) => {
           <div className="flex w-full items-center">
             <span className="mr-2 block h-3 w-3 rounded-full bg-primary"></span>
             <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span>Total Register Driver</span>
+              <span>Total Drivers</span>
               <span>{registerDriver}</span>
             </p>
           </div>
