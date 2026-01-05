@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { rideHistoryAPI } from "../../apis/RideHistory";
 import Breadcrumbs from '../Breadcrumbs/BreadCrumbs';
@@ -531,7 +531,7 @@ const RideHistory = () => {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white text-xs">
-                            Driver: {ride.driver?.name || "No Name"}
+                            Driver: {rides.franchiseInfo?.name || "No Name"}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             {ride.driver?.phone || "No Phone"}
@@ -554,9 +554,9 @@ const RideHistory = () => {
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white text-xs">
-                            Passenger: {ride.rider?.name || "No Name"}
-                          </p>
+                         <p className="font-medium text-gray-900 dark:text-white text-xs">
+  Driver: {ride.driver?.name || ride.franchiseInfo?.name || "No Name"}
+</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             {ride.rider?.phone || "No Phone"}
                           </p>
@@ -717,12 +717,12 @@ const RideHistory = () => {
                             )}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {ride.driver?.name || "No Name"}
-                            </p>
+                           <p className="font-medium text-gray-900 dark:text-white">
+  {ride.driver?.name || ride.franchiseInfo?.name || "No Name"}
+</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                               <FiPhone size={14} className="mr-1" />
-                              {ride.driver?.phone || "No Phone"}
+                              {ride.driverNumber || "No Phone"}
                             </p>
                             {ride.driver?.eto_id_num && (
                               <p className="text-xs text-gray-400 dark:text-gray-500">
