@@ -10,8 +10,6 @@ import {
   FiEye,
   FiMap,
   FiX,
-  FiClock,
-  FiDollarSign,
   FiSearch,
   FiFilter,
   FiNavigation,
@@ -19,6 +17,7 @@ import {
 import { Helmet } from "react-helmet";
 import toto from "../../assets/sidebar/toto.jpg";
 import loginAPI from "../../apis/Login";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 const ActiveRides = () => {
   const navigate = useNavigate();
@@ -339,7 +338,7 @@ const ActiveRides = () => {
                   ₹{summary.totalEarnings.toLocaleString()}
                 </p>
               </div>
-              <FiDollarSign className="text-2xl sm:text-3xl text-purple-200" />
+              <FaIndianRupeeSign className="text-2xl sm:text-3xl text-purple-200" />
             </div>
           </div>
         </div>
@@ -649,7 +648,7 @@ const ActiveRides = () => {
                         {/* Amount Column */}
                         <td className="px-4 lg:px-6 py-4">
                           <div className="flex items-center">
-                            <FiDollarSign
+                            <FaIndianRupeeSign
                               className="text-green-500 mr-2"
                               size={16}
                             />

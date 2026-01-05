@@ -590,10 +590,14 @@ const TopDriverDetails = () => {
                     </svg>
                   </div>
                 </div>
+
+                 <div>
+                <h2 className="text-center font-bold text-xl "> {driver.name || "Unknown Driver"}</h2>
+              </div>
   
                 {/* Address Details Header */}
-                <div className="mb-4">
-                  <h2 className="font-bold text-xl text-left text-gray-800 mb-3">
+                <div className="mb-4 mt-5">
+                  <h2 className="font-bold text-base text-left text-gray-800 mb-3">
                     Address Details :
                   </h2>
                 </div>

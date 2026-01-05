@@ -476,7 +476,7 @@ const AllDriverDetails = () => {
             {/* Content Area */}
             <div className="pt-16 pb-6 px-4">
               {/* Driver Name and ID */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-3">
                 <div className="flex justify-center">
                   <svg
                     width="100%"
@@ -536,9 +536,13 @@ const AllDriverDetails = () => {
                 </div>
               </div>
 
+              <div>
+                <h2 className="text-center font-bold text-xl "> {driver.name || "Unknown Driver"}</h2>
+              </div>
+
               {/* Address Details Header */}
-              <div className="mb-4">
-                <h2 className="font-bold text-xl text-left text-gray-800 mb-3">
+              <div className="mb-4 mt-5">
+                <h2 className="font-bold text-base text-left text-gray-800 mb-3">
                   Address Details :
                 </h2>
               </div>
