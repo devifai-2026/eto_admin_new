@@ -19,7 +19,11 @@ const ProtectedRoute = ({
   // Check if user type is allowed for this route
   if (!allowedUserTypes.includes(userType)) {
     // If user doesn't have permission, redirect to dashboard or show 403
-    return <Navigate to="/" replace />;
+    if (userType === "admin") {
+      return <Navigate to="/" replace />;
+    } else {
+      return <Navigate to="/all-drivers" replace />;
+    }
   }
 
   return children;

@@ -38,7 +38,7 @@ const Sidebar = () => {
       icon: FiHome,
       label: "Home",
       exact: true,
-      allowed: ["admin", "franchise"],
+      allowed: ["admin"],
     },
     {
       path: "/top-drivers",

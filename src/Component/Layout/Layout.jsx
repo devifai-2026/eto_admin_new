@@ -88,7 +88,7 @@ const Layout = () => {
             <Route
               path="/"
               element={
-                <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
+                <ProtectedRoute allowedUserTypes={["admin"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }

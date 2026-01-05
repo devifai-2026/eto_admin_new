@@ -161,11 +161,12 @@ const Login = () => {
           localStorage.setItem("refreshToken", response.data.refreshToken);
         }
 
+        console.log("User logged in successfully", userType);
         // Navigate based on user type
         if (userType === "admin") {
-          navigate("/admin/dashboard");
+          navigate("/"); // Admin goes to dashboard
         } else {
-          navigate("/franchise/dashboard");
+          navigate("/all-drivers"); // Franchise goes directly to all-drivers
         }
       } else {
         setError(response.message || "Failed to verify OTP");
