@@ -21,6 +21,7 @@ import {
 import Breadcrumbs from "../Breadcrumbs/BreadCrumbs";
 import { Helmet } from "react-helmet";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import toto from "../../assets/sidebar/toto.jpg"
 
 const RideHistoryDetails = () => {
   const { rideHistoryId } = useParams();
@@ -444,7 +445,7 @@ const RideHistoryDetails = () => {
             {/* Ride Metrics */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                <MdDirectionsCar className="mr-2" />
+                <img src={toto}  className="mr-2 h-7 w-7" />
                 Ride Metrics
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
