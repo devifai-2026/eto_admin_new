@@ -21,6 +21,7 @@ const Login = () => {
     admin: "9830880062",
     franchise: "8145328152",
     franchise: "7872358975",
+    franchise: "8768933994",
   };
 
   // Check if user is already logged in

@@ -199,8 +199,12 @@ const DriverTable = ({
                 {/* Driver Info */}
                 <td className="px-4 lg:px-6 py-4">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 lg:h-12 lg:w-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white">
-                      <FiUser size={20} />
+                    <div className="flex-shrink-0 h-10 w-10 lg:h-12 lg:w-12">
+                      <img
+                        className="h-10 w-10 lg:h-12 lg:w-12 rounded-full border-2 border-gray-200 dark:border-gray-600 object-cover"
+                        src={driver.driver_photo}
+                        alt={driver.name}
+                      />
                     </div>
                     <div className="ml-3 lg:ml-4">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -236,9 +240,7 @@ const DriverTable = ({
                     </span>
                     <span
                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium w-fit ${rideStatus.color}`}
-                    >
-                      
-                    </span>
+                    ></span>
                   </div>
                 </td>
 

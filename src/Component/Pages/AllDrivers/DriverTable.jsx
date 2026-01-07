@@ -4,7 +4,10 @@ import {
   FiCreditCard,
   FiChevronLeft,
   FiChevronRight,
+  FiEdit,
 } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import loginAPI from "../../../apis/Login";
 
 const DriverTable = ({
   drivers,
@@ -23,6 +26,11 @@ const DriverTable = ({
     startIndex,
     startIndex + itemsPerPage
   );
+
+  // Get current user type
+  const userType = loginAPI.getUserType();
+
+  const navigate = useNavigate();
 
   // Generate page numbers
   const getPageNumbers = () => {
@@ -63,8 +71,8 @@ const DriverTable = ({
   // Function to get status badge styling based on status
   const getStatusBadge = (status) => {
     const statusLower = (status || "").toLowerCase();
-    
-    switch(statusLower) {
+
+    switch (statusLower) {
       case "active":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
       case "inactive":
@@ -90,8 +98,8 @@ const DriverTable = ({
   // Function to get status dot color
   const getStatusDotColor = (status) => {
     const statusLower = (status || "").toLowerCase();
-    
-    switch(statusLower) {
+
+    switch (statusLower) {
       case "active":
       case "available":
         return "bg-green-500";
@@ -116,10 +124,10 @@ const DriverTable = ({
   // Function to format status text for display
   const formatStatusText = (status) => {
     if (!status) return "Unknown";
-    
+
     const statusLower = status.toLowerCase();
-    
-    switch(statusLower) {
+
+    switch (statusLower) {
       case "active":
         return "Active";
       case "inactive":
@@ -140,9 +148,9 @@ const DriverTable = ({
       default:
         // Capitalize first letter of each word
         return status
-          .split('_')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
     }
   };
 
@@ -210,10 +218,14 @@ const DriverTable = ({
                 </div>
               </div>
               <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(driver.status)}`}
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                  driver.status
+                )}`}
               >
                 <span
-                  className={`w-2 h-2 rounded-full mr-1 ${getStatusDotColor(driver.status)}`}
+                  className={`w-2 h-2 rounded-full mr-1 ${getStatusDotColor(
+                    driver.status
+                  )}`}
                 ></span>
                 {formatStatusText(driver.status)}
               </span>
@@ -333,7 +345,10 @@ const DriverTable = ({
                       </div>
                       {driver.status && (
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Status: <span className="font-medium">{formatStatusText(driver.status)}</span>
+                          Status:{" "}
+                          <span className="font-medium">
+                            {formatStatusText(driver.status)}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -362,10 +377,14 @@ const DriverTable = ({
                 <td className="px-4 lg:px-6 py-4 text-center">
                   <div className="flex flex-col items-center">
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(driver.status)}`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
+                        driver.status
+                      )}`}
                     >
                       <span
-                        className={`w-2 h-2 rounded-full mr-2 ${getStatusDotColor(driver.status)}`}
+                        className={`w-2 h-2 rounded-full mr-2 ${getStatusDotColor(
+                          driver.status
+                        )}`}
                       ></span>
                       {formatStatusText(driver.status)}
                     </span>
@@ -395,22 +414,37 @@ const DriverTable = ({
                 <td className="px-4 lg:px-6 py-4 text-center">
                   <div className="flex justify-center space-x-2">
                     <button
-                      onClick={() => viewDriverDetails(driver.userId || driver.id)}
+                      onClick={() =>
+                        viewDriverDetails(driver.userId || driver.id)
+                      }
                       className="inline-flex items-center px-3 py-1 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
                       title="View driver details"
                     >
                       <FiEye size={14} className="mr-1" />
                       View
                     </button>
-
-                    <button
-                      onClick={() => handleDeleteDriver(driver)} 
-                      className="inline-flex items-center px-3 py-1 border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-sm"
-                      title="Delete driver"
-                    >
-                      <FiTrash2 size={14} className="mr-1" />
-                      Delete
-                    </button>
+                    {userType === "admin" && (
+                      <>
+                        <button
+                          onClick={() =>
+                            navigate(`/update-driver/${driver.userId}`)
+                          }
+                          className="inline-flex items-center px-3 py-1 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
+                          title="Edit driver"
+                        >
+                          <FiEdit size={14} className="mr-1" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteDriver(driver)}
+                          className="inline-flex items-center px-3 py-1 border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-sm"
+                          title="Delete driver"
+                        >
+                          <FiTrash2 size={14} className="mr-1" />
+                          Delete
+                        </button>{" "}
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>

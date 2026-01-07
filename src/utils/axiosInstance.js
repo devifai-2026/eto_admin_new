@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // Change this ONE value only
-const IS_PRODUCTION = true; // true = production, false = development
+const IS_PRODUCTION = false; // true = production, false = development
 
 const DEV_URI = "http://localhost:8000/eto/api/v1";
 const PROD_URI = "https://www.totoserver.in/eto/api/v1";

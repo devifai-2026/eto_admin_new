@@ -46,7 +46,9 @@ export const allDriverAPI = {
   // Delete driver
   deleteDriver: async (driverId) => {
     try {
-      const response = await axiosInstance.delete(`/driver/deleteAccount/${driverId}`);
+      const response = await axiosInstance.delete(
+        `/driver/deleteAccount/${driverId}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting driver:", error);
@@ -64,6 +66,38 @@ export const allDriverAPI = {
     } catch (error) {
       console.error("Error updating driver status:", error);
       throw error;
+    }
+  },
+
+  // Update driver by ID (Admin only)
+  updateDriver: async (driverId, updateData, adminId) => {
+    try {
+
+      // Include adminId in the request body
+      const dataToSend = {
+        ...updateData,
+        adminId,
+      };
+
+      const response = await axiosInstance.put(
+        `/driver/updateDriver/${driverId}`,
+        dataToSend
+      );
+
+      // console.log("Update Driver Response:", response);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating driver:", error);
+
+      // Return a consistent error response
+      return {
+        status: error.response?.status || 500,
+        data: null,
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to update driver",
+      };
     }
   },
 };

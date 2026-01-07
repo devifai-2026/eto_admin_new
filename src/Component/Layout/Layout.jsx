@@ -29,6 +29,7 @@ import CommissionSettingsDetails from "../Pages/AllFranchise/Commission/Commissi
 import EditCommissionSettings from "../Pages/AllFranchise/Commission/EditCommissionSettings";
 import CommissionHistory from "../Pages/AllFranchise/Commission/CommissionHistory";
 import DriversWithoutFranchise from "../Pages/AllFranchise/DriverWithoutFranchise/DriversWithoutFranchise";
+import DriverUpdatePage from "../Pages/AllDrivers/DriverUpdatePage";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -126,6 +127,14 @@ const Layout = () => {
               element={
                 <ProtectedRoute allowedUserTypes={["admin", "franchise"]}>
                   <AllDriverDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/update-driver/:driverId"
+              element={
+                <ProtectedRoute allowedUserTypes={["admin"]}>
+                  <DriverUpdatePage />
                 </ProtectedRoute>
               }
             />
