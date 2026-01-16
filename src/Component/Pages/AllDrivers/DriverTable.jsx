@@ -11,21 +11,29 @@ import loginAPI from "../../../apis/Login";
 
 const DriverTable = ({
   drivers,
-  filteredDrivers,
   currentPage,
   itemsPerPage,
   setCurrentPage,
   viewDriverDetails,
   handleDeleteDriver,
   loading,
+  totalItems,
 }) => {
   // Calculate pagination values
-  const totalPages = Math.ceil(filteredDrivers.length / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentDrivers = filteredDrivers.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  
+  // Use drivers directly (they contain current page data from API)
+  const currentDrivers = drivers;
+
+  console.log('DriverTable Debug:');
+  console.log('- drivers length:', drivers.length);
+  console.log('- totalItems:', totalItems);
+  console.log('- itemsPerPage:', itemsPerPage);
+  console.log('- totalPages:', totalPages);
+  console.log('- currentPage:', currentPage);
+  console.log('- startIndex:', startIndex);
+  console.log('- Should show pagination?', totalPages > 1);
 
   // Get current user type
   const userType = loginAPI.getUserType();
@@ -173,7 +181,7 @@ const DriverTable = ({
             No drivers found
           </h3>
           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-            Try adjusting your search or filters
+            {totalItems > 0 ? `No drivers on page ${currentPage}. Try a different page.` : "Try adjusting your search or filters"}
           </p>
         </div>
       </div>
@@ -185,10 +193,10 @@ const DriverTable = ({
       {/* Table Header */}
       <div className="bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-600">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
-          Driver List ({filteredDrivers.length} drivers)
+          Driver List ({totalItems} drivers)
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Showing {currentDrivers.length} drivers on this page
+          Showing {currentDrivers.length} drivers on page {currentPage}
         </p>
       </div>
 
@@ -281,7 +289,7 @@ const DriverTable = ({
                 View
               </button>
               <button
-                onClick={() => handleDeleteDriver(driver)} // Pass full driver object
+                onClick={() => handleDeleteDriver(driver)}
                 className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-colors text-sm"
               >
                 <FiTrash2 size={14} className="mr-1" />
@@ -343,14 +351,6 @@ const DriverTable = ({
                       <div className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">
                         Joined {driver.joinedDate || "N/A"}
                       </div>
-                      {driver.status && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Status:{" "}
-                          <span className="font-medium">
-                            {formatStatusText(driver.status)}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </td>
@@ -442,7 +442,7 @@ const DriverTable = ({
                         >
                           <FiTrash2 size={14} className="mr-1" />
                           Delete
-                        </button>{" "}
+                        </button>
                       </>
                     )}
                   </div>
@@ -460,10 +460,9 @@ const DriverTable = ({
             <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
               Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
               <span className="font-medium">
-                {Math.min(startIndex + itemsPerPage, filteredDrivers.length)}
+                {Math.min(startIndex + itemsPerPage, totalItems)}
               </span>{" "}
-              of <span className="font-medium">{filteredDrivers.length}</span>{" "}
-              results
+              of <span className="font-medium">{totalItems}</span> results
             </p>
 
             <div className="flex items-center space-x-1">
