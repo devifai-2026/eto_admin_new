@@ -13,7 +13,6 @@ const AllDrivers = () => {
 
   // State management
   const [drivers, setDrivers] = useState([]);
-  const [filteredDrivers, setFilteredDrivers] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,6 +24,7 @@ const AllDrivers = () => {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [totalItems, setTotalItems] = useState(0);
 
   // Get current user information
   const getCurrentUserInfo = useCallback(() => {
@@ -90,15 +90,14 @@ const AllDrivers = () => {
           // Set summary statistics
           if (data.summary) {
             setSummary(data.summary);
+            setTotalItems(data.summary.totalDrivers || 0);
           }
 
-          // Set drivers data
+          // Set drivers data (current page only)
           if (data.drivers && Array.isArray(data.drivers)) {
             setDrivers(data.drivers);
-            setFilteredDrivers(data.drivers);
           } else {
             setDrivers([]);
-            setFilteredDrivers([]);
           }
         } else {
           throw new Error(response.message || "Failed to fetch drivers");
@@ -107,7 +106,7 @@ const AllDrivers = () => {
         console.error("Error fetching drivers:", err);
         setError(err.message || "Failed to load drivers");
         setDrivers([]);
-        setFilteredDrivers([]);
+        setTotalItems(0);
       } finally {
         setLoading(false);
       }
@@ -115,62 +114,24 @@ const AllDrivers = () => {
     [currentPage, itemsPerPage, searchTerm, activeFilter, getCurrentUserInfo]
   );
 
-  // Initial fetch
+  // Initial fetch and fetch when filters/page change
   useEffect(() => {
     fetchDrivers();
   }, [fetchDrivers]);
 
-  // Apply filters with debouncing - CLIENT SIDE FILTERING
+  // Handle search or filter change
   useEffect(() => {
     const timerId = setTimeout(() => {
-      if (searchTerm.trim() === "") {
-        setFilteredDrivers(drivers);
-      } else {
-        applyLocalFilters();
-      }
-    }, 500);
-
-    return () => {
-      clearTimeout(timerId);
-    };
-  }, [searchTerm, drivers]);
-
-  // Apply local filters (client-side)
-  const applyLocalFilters = useCallback(() => {
-    let result = [...drivers];
-
-    // Apply search filter locally
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter((driver) => {
-        const nameMatch = driver.name?.toLowerCase().includes(term) || false;
-        const emailMatch = driver.email?.toLowerCase().includes(term) || false;
-        const phoneMatch = driver.phone?.includes(term) || false;
-        const etoIdMatch =
-          driver.etoCard?.eto_id_num?.toLowerCase().includes(term) || false;
-
-        return nameMatch || emailMatch || phoneMatch || etoIdMatch;
-      });
-    }
-
-    setFilteredDrivers(result);
-    setCurrentPage(1);
-  }, [searchTerm, drivers]);
-
-  // Handle search or filter change - FETCH FROM API
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      fetchDrivers();
-    }, 800);
+      setCurrentPage(1); // Reset to first page when filters change
+    }, 300);
 
     return () => {
       clearTimeout(timerId);
     };
   }, [searchTerm, activeFilter]);
 
-  // Handle driver deletion - UPDATED TO USE CORRECT ID
+  // Handle driver deletion
   const handleDeleteDriver = async (driver) => {
-    // Extract the ID from the driver object
     const driverId = driver?.id;
     
     if (!driverId) {
@@ -179,7 +140,6 @@ const AllDrivers = () => {
       return;
     }
 
-    // Get driver name for confirmation message
     const driverName = driver?.name || "this driver";
     
     if (
@@ -194,7 +154,6 @@ const AllDrivers = () => {
       console.log("Deleting driver with ID:", driverId);
       await allDriverAPI.deleteDriver(driverId);
       
-      // Show success message
       alert(`Driver "${driverName}" has been deleted successfully.`);
       
       // Refetch data after deletion
@@ -258,13 +217,13 @@ const AllDrivers = () => {
         {/* Driver Table with Pagination */}
         <DriverTable
           drivers={drivers}
-          filteredDrivers={filteredDrivers}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           setCurrentPage={handlePageChange}
           viewDriverDetails={viewDriverDetails}
-          handleDeleteDriver={handleDeleteDriver} // Pass the handler
+          handleDeleteDriver={handleDeleteDriver}
           loading={loading}
+          totalItems={totalItems}
         />
       </div>
     </div>
